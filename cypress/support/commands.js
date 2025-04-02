@@ -12,9 +12,9 @@ Cypress.Commands.add("login", (email, password) => {
 
 //SEARCH - DONE
 Cypress.Commands.add("search", (inputText) => {
-    cy.get('button.css-1bhvgib', { timeout: 5000 })
-    .should('be.visible')
-    .click();
+    // cy.get('button.css-1bhvgib', { timeout: 5000 })
+    // .should('be.visible')
+    // .click();
 
   cy.get('input[placeholder="Search by job titles, companies or skills"]', { timeout: 10000, scrollBehavior: false})
     .scrollIntoView()
