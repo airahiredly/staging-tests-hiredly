@@ -2,7 +2,7 @@ name: Run Cypress Tests
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Every day at 10AM Malaysia Time (UTC+8)
+    - cron: '0 18 * * *'  #2am malaysia time
   push:
     branches: [main]
 
@@ -11,16 +11,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧾 Checkout repo
+      - name: checkout repo
         uses: actions/checkout@v3
 
-      - name: 🧰 Setup Node.js
+      - name: setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      - name: 📦 Install dependencies
+      - name: install dependencies
         run: npm install
 
-      - name: 🧪 Run Cypress tests
+      - name: download cypress binary
+        run: npx cypress install
+
+      - name: run cypress tests
         run: npx cypress run
+
+      - name: 📤 Send test report via email
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: 🧪 Cypress Test Results
+          to: ${{ secrets.EMAIL_TO }}
+          from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
+          body: |
+            Test run complete. Report attached.
+            Summary: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            attachments: cypress/reports/mochawesome-report.html      
