@@ -1,0 +1,105 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 1,
+    "passes": 1,
+    "pending": 0,
+    "failures": 0,
+    "start": "2025-03-27T09:58:15.264Z",
+    "end": "2025-03-27T09:58:33.836Z",
+    "duration": 18572,
+    "testsRegistered": 1,
+    "passPercent": 100,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "9e8b0e3c-1d87-4e8a-8d72-fc6819b34957",
+      "title": "",
+      "fullFile": "cypress\\e2e\\invalidlogin.cy.js",
+      "file": "cypress\\e2e\\invalidlogin.cy.js",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "3cdcece2-3297-4c0e-93c1-77e63f2b35a5",
+          "title": "User Invalid Login Test",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "should prevent log in with invalid credentials",
+              "fullTitle": "User Invalid Login Test should prevent log in with invalid credentials",
+              "timedOut": null,
+              "duration": 11527,
+              "state": "passed",
+              "speed": "slow",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "cy.contains('Log In').click();\ncy.get('#filled-required-Email').type('testj@gmail.com');\ncy.get('#filled-required-Password').type('password1', {\n  log: false\n});\ncy.get('.MuiButton-containedPrimary').contains('Log In').click();\n// verify login fail by checking for error message\ncy.contains('Invalid email or password.').should('be.visible');",
+              "err": {},
+              "uuid": "3e62c76b-ce14-4c1b-a694-2a1dc36b22ce",
+              "parentUUID": "3cdcece2-3297-4c0e-93c1-77e63f2b35a5",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [],
+          "passes": [
+            "3e62c76b-ce14-4c1b-a694-2a1dc36b22ce"
+          ],
+          "failures": [],
+          "pending": [],
+          "skipped": [],
+          "duration": 11527,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.0.1"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": false,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.3"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "cypress/reports",
+        "overwrite": false,
+        "html": false,
+        "json": true
+      },
+      "version": "6.2.0"
+    }
+  }
+}
