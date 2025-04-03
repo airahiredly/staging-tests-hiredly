@@ -2,7 +2,7 @@ name: Run Cypress Tests
 
 on:
   schedule:
-    - cron: '0 18 * * *'  #to send daily email at 2am malaysia time 
+    - cron: '0 18 * * *'  # 2AM Malaysia Time (MYT = UTC+8)
   push:
     branches: [main]
 
@@ -20,15 +20,15 @@ jobs:
           node-version: 20
 
       - name: install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: download cypress binary
-        run: npx cypress install
-
-      - name: run cypress tests
-        run: npx cypress run
+      - name: run Cypress tests with Mochawesome
+        run: |
+          chmod +x ./node_modules/.bin/cypress
+          npx cypress run --reporter mochawesome --reporter-options "reportDir=cypress/reports,overwrite=true,html=true,json=false"
 
       - name: send HTML test report
+        if: always() 
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.mailersend.net
@@ -36,9 +36,10 @@ jobs:
           secure: true
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: 🚀 Cypress Daily Report
+          subject: ${{ job.status == 'success' && '✅ Cypress Tests Passed' || '❌ Cypress Tests Failed' }}
           to: ${{ secrets.EMAIL_TO }}
           from: QA Bot <${{ secrets.EMAIL_USERNAME }}>
           body: |
-            Cypress test run complete. See attached report.
-          attachments: cypress/reports/mochawesome-report.html
+            Cypress test run complete. See attached HTML report.
+            View this run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          attachments: cypress/reports/mochawesome.html
