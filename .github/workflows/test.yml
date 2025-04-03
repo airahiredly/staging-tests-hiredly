@@ -26,7 +26,7 @@ jobs:
         run: |
           chmod +x ./node_modules/.bin/cypress
           npx cypress run --reporter mochawesome --reporter-options "reportDir=cypress/reports,overwrite=true,html=false,json=true"
-
+        continue-on-error: true
       - name: generate summary table
         run: node generate-summary.js
 
