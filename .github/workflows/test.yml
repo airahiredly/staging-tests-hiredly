@@ -64,4 +64,4 @@ jobs:
           to: ${{ secrets.EMAIL_TO }}
           from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
           content_type: text/plain
-          body: ${{ steps.read_summary.outputs }}
+          body: ${{ steps.summary.outputs.summary }}
