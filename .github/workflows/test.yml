@@ -2,7 +2,7 @@ name: Run Cypress Tests
 
 on:
   schedule:
-    - cron: '0 18 * * *'  # 2AM Malaysia time
+    - cron: '0 18 * * *'  # 2AM Malaysia time (UTC+8)
   push:
     branches: [main]
 
@@ -27,6 +27,7 @@ jobs:
           chmod +x ./node_modules/.bin/cypress
           npx cypress run --reporter mochawesome --reporter-options "reportDir=cypress/reports,overwrite=true,html=false,json=true"
         continue-on-error: true
+
       - name: generate summary table
         run: node generate-summary.js
 
@@ -34,7 +35,7 @@ jobs:
         id: read_summary
         run: |
           SUMMARY=$(cat cypress/reports/summary.html | sed ':a;N;$!ba;s/\n/ /g')
-          echo "html=$SUMMARY" >> $GITHUB_OUTPUT
+          echo "html=<h3>Cypress Test Summary</h3><p>Here’s the latest result from your scheduled run:</p>$SUMMARY<br><p>🔗 <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View full run on GitHub</a></p><p>Workflow: ${{ github.workflow }}</p><p>Branch: ${{ github.ref }}</p><p>Run ID: ${{ github.run_id }}</p>" >> $GITHUB_OUTPUT
 
       - name: send test report via email
         uses: dawidd6/action-send-mail@v3
@@ -48,14 +49,4 @@ jobs:
           to: ${{ secrets.EMAIL_TO }}
           from: QA Bot <${{ secrets.EMAIL_USERNAME }}>
           content_type: text/html
-          body: |
-            <h3>Cypress Test Summary</h3>
-            <p>Here’s the latest result from your scheduled run:</p>
-
-            ${{ steps.read_summary.outputs.html }}
-
-            <br>
-            <p>🔗 <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">View full run on GitHub</a></p>
-            <p>Workflow: ${{ github.workflow }}</p>
-            <p>Branch: ${{ github.ref }}</p>
-            <p>Run ID: ${{ github.run_id }}</p>
+          body: ${{ steps.read_summary.outputs.html }}
