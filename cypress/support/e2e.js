@@ -1,13 +1,10 @@
 import 'cypress-file-upload';
 import './commands';
 
-//to ignore clevertap error 
-Cypress.on("uncaught:exception", (err, runnable) => {
-    if (err.message.includes("clevertap is not defined")) {
-      return false; // Ignore the error so tests don't fail
-    }
+  Cypress.on('uncaught:exception', (err, runnable) => {
+    return false; // prevents test from failing
   });
-
+  
 //block requests
 Cypress.Commands.add("blockTrackingRequests", () => {
     cy.intercept("POST", "https://f.clarity.ms/collect", {

@@ -34,23 +34,17 @@ jobs:
       - name: extract summary for plain text
         id: summary
         run: |
-          echo "summary<<EOF" >> $GITHUB_OUTPUT
-          echo "🌙 Cypress Test Summary" >> $GITHUB_OUTPUT
-          echo "" >> $GITHUB_OUTPUT
+          {
+            echo "summary<<EOF"
+            echo "🌙 Cypress Test Summary"
+            echo ""
+            echo "Spec File: Pass | Fail"
+            jq -r '.results[] | "\(.file): \([.suites[].tests[] | select(.pass == true)] | length) | \([.suites[].tests[] | select(.fail == true)] | length)"' < <(npx mochawesome-merge cypress/reports/*.json)
+            echo ""
+            echo "🔗 GitHub Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
       
-          npx jq -r '
-            .results[] | 
-            {
-              file: .file, 
-              passed: ([.suites[].tests[] | select(.pass == true)] | length),
-              failed: ([.suites[].tests[] | select(.fail == true)] | length)
-            } | 
-            "* \(.file)\n  ✅ Passed: \(.passed)\n  ❌ Failed: \(.failed)\n"
-          ' cypress/reports/merged.json >> $GITHUB_OUTPUT
-      
-          echo "" >> $GITHUB_OUTPUT
-          echo "🔗 GitHub Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
       
      
       - name: send test report via email
