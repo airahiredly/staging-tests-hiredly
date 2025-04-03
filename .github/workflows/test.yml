@@ -27,6 +27,7 @@ jobs:
           chmod +x ./node_modules/.bin/cypress
           npx cypress run --reporter mochawesome --reporter-options "reportDir=cypress/reports,overwrite=false,html=false,json=true"
         continue-on-error: true
+      
 
       - name: merge mochawesome reports
         run: npx mochawesome-merge cypress/reports/*.json > cypress/reports/merged.json
