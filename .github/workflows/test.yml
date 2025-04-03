@@ -1,6 +1,7 @@
 name: Run Cypress Tests
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 18 * * *'  # 2AM Malaysia time (UTC+8)
   push:
