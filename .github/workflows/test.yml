@@ -41,7 +41,7 @@ jobs:
         with:
           server_address: smtp.mailersend.net
           server_port: 587
-          secure: true
+          secure: false
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: ${{ job.status == 'success' && '✅ Cypress Tests Passed' || '❌ Cypress Tests Failed' }}
