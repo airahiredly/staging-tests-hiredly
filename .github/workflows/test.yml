@@ -25,27 +25,28 @@ jobs:
       - name: run Cypress with Mochawesome
         run: |
           chmod +x ./node_modules/.bin/cypress
-          npx cypress run --reporter mochawesome --reporter-options "reportDir=cypress/reports,overwrite=true,html=false,json=true"
+          npx cypress run --reporter mochawesome --reporter-options "reportDir=cypress/reports,overwrite=false,html=false,json=true"
         continue-on-error: true
 
+      - name: merge mochawesome reports
+        run: npx mochawesome-merge cypress/reports/*.json > cypress/reports/merged.json
+      
       - name: extract summary for plain text
         id: summary
         run: |
           echo "summary<<EOF" >> $GITHUB_OUTPUT
           echo "🌙 Cypress Test Summary" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
-          echo "| Spec File                               | ✅ Passed | ❌ Failed |" >> $GITHUB_OUTPUT
-          echo "|-----------------------------------------|------------|-----------|" >> $GITHUB_OUTPUT
       
-          npx mochawesome-merge cypress/reports/*.json | jq -r '
+          npx jq -r '
             .results[] | 
             {
               file: .file, 
               passed: ([.suites[].tests[] | select(.pass == true)] | length),
               failed: ([.suites[].tests[] | select(.fail == true)] | length)
             } | 
-            "| \(.file) | \(.passed)       | \(.failed)       |"
-          ' >> $GITHUB_OUTPUT
+            "* \(.file)\n  ✅ Passed: \(.passed)\n  ❌ Failed: \(.failed)\n"
+          ' cypress/reports/merged.json >> $GITHUB_OUTPUT
       
           echo "" >> $GITHUB_OUTPUT
           echo "🔗 GitHub Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
