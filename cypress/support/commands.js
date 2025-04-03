@@ -9,13 +9,23 @@ Cypress.Commands.add("login", (email, password) => {
     cy.get('[alt="user-profile-image"]').should('be.visible'); 
   });
 
+//SIGNUP - DONE
+Cypress.Commands.add("signup", () => {
+      const timestamp = Date.now();
+      const email = `testuser${timestamp}@gmail.com`;
+
+      cy.visit("https://staging-my.hiredly.com");
+      cy.contains('Sign Up').click();
+      cy.get('#filled-required-Email').type(email); 
+      cy.get('#filled-required-Password').type('password', { log: false }); 
+      cy.get('input[type="checkbox"]').check();
+      cy.get('.MuiDialogContent-root > .MuiButton-root').click();
+      cy.wait(1000);
+});
+
 
 //SEARCH - DONE
 Cypress.Commands.add("search", (inputText) => {
-    // cy.get('button.css-1bhvgib', { timeout: 5000 })
-    // .should('be.visible')
-    // .click();
-
   cy.get('input[placeholder="Search by job titles, companies or skills"]', { timeout: 10000, scrollBehavior: false})
     .scrollIntoView()
     .should('be.visible')
@@ -54,48 +64,6 @@ Cypress.Commands.add("applyJob", function() {
     cy.get('button[aria-label="apply-job-button"]').click();
   });
 
-
-// SEARCH AND APPLY - CAN POTENTIALLY REMOVE, KIV
-// Cypress.Commands.add("searchAndApply", function(inputText) {
-//   cy.get('button.css-1bhvgib', { timeout: 5000 })
-//     .should('be.visible')
-//     .click();
-
-//   cy.get('input[placeholder="Search by job titles, companies or skills"]', {
-//       timeout: 10000,
-//       scrollBehavior: false
-//     })
-//     .scrollIntoView()
-//     .should('be.visible')
-//     .click()
-//     .type(`${inputText}{enter}`);
-
-//   cy.wait(3000);
-//   cy.url().as('searchResultsUrl');
-
-//   cy.get('@searchResultsUrl').then((searchUrl) => {
-//     const urlToVisit = this.filterResultsUrl || searchUrl;  // fallback logic
-//     cy.visit(urlToVisit);
-
-//     cy.get('.css-oiffn2').first().then(($jobCard) => {
-//       const jobUrl = $jobCard.prop('href') ||
-//                      $jobCard.attr('onclick')?.match(/window\.open\('(.*?)'/)?.[1];
-
-//       if (jobUrl) {
-//         cy.log('Extracted Job URL:', jobUrl);
-//         cy.visit(jobUrl);
-//       } else {
-//         cy.log('No valid job URL found, clicking instead');
-//         cy.wrap($jobCard).click(); 
-//       }
-//     });
-
-//     cy.wait(1000);
-//     cy.get('button[aria-label="apply-job-button"]').click();
-//   });
-// });
-
-
 //VIEW ALL JOBS FROM BULK APPLY
 Cypress.Commands.add("viewAllJobs", function() {
     cy.contains("View All Jobs").click();
@@ -106,7 +74,7 @@ Cypress.Commands.add("viewSimilarJobs", function() {
   cy.contains("View Similar Jobs").click();
 });
 
-//UPLOAD RESUME FROM HP - DONEEEE!
+//UPLOAD RESUME FROM HP - DONE
 import 'cypress-file-upload';
 Cypress.Commands.add("uploadResumeHP", (name, email, password)=> {
   cy.get('.css-k88g6 > .MuiButtonBase-root').click();
@@ -122,7 +90,7 @@ Cypress.Commands.add("uploadResumeHP", (name, email, password)=> {
   cy.get('.jss53 > .MuiButtonBase-root').click();
 });
 
-//UPLOAD RESUME FROM PROFILE
+//UPLOAD RESUME FROM PROFILE - DONE
 import 'cypress-file-upload';
 Cypress.Commands.add("uploadResumeProfile", function() {
     cy.get('[alt = "user-profile-image"]', {timeout:10000}).should('be.visible').click();
@@ -141,3 +109,14 @@ Cypress.Commands.add("uploadResumeProfile", function() {
         .should('be.visible')
         .click(); 
 });
+
+//UPLOAD RESUME FROM SIGNUP - DONE
+import 'cypress-file-upload';
+Cypress.Commands.add("uploadResumeSignup", function() {
+  const myFile = 'resume.pdf'; 
+  cy.contains('Upload Resume').click();
+  cy.get('input[type="file"]').attachFile({
+    filePath: myFile,
+    encoding: 'base64' //to ensure pdf doesn't get corrupted
+});
+  });
