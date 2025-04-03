@@ -28,15 +28,30 @@ jobs:
           npx cypress run --reporter mochawesome --reporter-options "reportDir=cypress/reports,overwrite=true,html=false,json=true"
         continue-on-error: true
 
-      - name: generate summary table
-        run: node generate-summary.js
-
-      - name: read summary into output
-        id: read_summary
+      - name: extract summary for plain text
+        id: summary
         run: |
-          SUMMARY=$(cat cypress/reports/summary.html | sed ':a;N;$!ba;s/\n/ /g')
-          echo "html=<h3>Cypress Test Summary</h3><p>Here’s the latest result from your scheduled run:</p>$SUMMARY<br><p>🔗 <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View full run on GitHub</a></p><p>Workflow: ${{ github.workflow }}</p><p>Branch: ${{ github.ref }}</p><p>Run ID: ${{ github.run_id }}</p>" >> $GITHUB_OUTPUT
-
+          echo "summary<<EOF" >> $GITHUB_OUTPUT
+          echo "🌙 Cypress Test Summary" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "| Spec File                               | ✅ Passed | ❌ Failed |" >> $GITHUB_OUTPUT
+          echo "|-----------------------------------------|------------|-----------|" >> $GITHUB_OUTPUT
+      
+          npx mochawesome-merge cypress/reports/*.json | jq -r '
+            .results[] | 
+            {
+              file: .file, 
+              passed: ([.suites[].tests[] | select(.pass == true)] | length),
+              failed: ([.suites[].tests[] | select(.fail == true)] | length)
+            } | 
+            "| \(.file) | \(.passed)       | \(.failed)       |"
+          ' >> $GITHUB_OUTPUT
+      
+          echo "" >> $GITHUB_OUTPUT
+          echo "🔗 GitHub Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+     
       - name: send test report via email
         uses: dawidd6/action-send-mail@v3
         with:
@@ -47,6 +62,6 @@ jobs:
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: ${{ job.status == 'success' && '✅ Cypress Tests Passed' || '❌ Cypress Tests Failed' }}
           to: ${{ secrets.EMAIL_TO }}
-          from: QA Bot <${{ secrets.EMAIL_USERNAME }}>
-          content_type: text/html
+          from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
+          content_type: text/plain
           body: ${{ steps.read_summary.outputs.html }}
