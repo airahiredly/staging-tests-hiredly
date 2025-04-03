@@ -28,7 +28,9 @@ jobs:
           npx cypress run --reporter mochawesome --reporter-options "reportDir=cypress/reports,overwrite=false,html=false,json=true"
         continue-on-error: true
       
-
+      - name: clean mochawesome reports
+        run: rm -rf cypress/reports/*.json
+        
       - name: merge mochawesome reports
         run: npx mochawesome-merge cypress/reports/*.json > cypress/reports/merged.json
       
@@ -39,12 +41,17 @@ jobs:
             echo "summary<<EOF"
             echo "🌙 Cypress Test Summary"
             echo ""
-            echo "Spec File: Pass | Fail"
-            jq -r '.results[] | "\(.file): \([.suites[].tests[] | select(.pass == true)] | length) | \([.suites[].tests[] | select(.fail == true)] | length)"' < <(npx mochawesome-merge cypress/reports/*.json)
+      
+            # Merge reports and format per spec file
+            npx mochawesome-merge cypress/reports/*.json | jq -r '
+              .results[] | "* \(.file)\n\n✅ Passed: \([.suites[].tests[] | select(.pass == true)] | length)\n❌ Failed: \([.suites[].tests[] | select(.fail == true)] | length)\n"
+            '
+      
             echo ""
             echo "🔗 GitHub Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
+      
       
       
      
