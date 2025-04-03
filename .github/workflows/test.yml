@@ -11,32 +11,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧾 Checkout repo
+      - name: checkout repo
         uses: actions/checkout@v3
 
-      - name: 🧪 Setup Node.js
+      - name: setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      - name: 📦 Install dependencies
+      - name: install dependencies
         run: npm ci
 
-      - name: 🚀 Run Cypress with Mochawesome
+      - name: run Cypress with Mochawesome
         run: |
           chmod +x ./node_modules/.bin/cypress
           npx cypress run --reporter mochawesome --reporter-options "reportDir=cypress/reports,overwrite=true,html=false,json=true"
 
-      - name: 🧠 Generate summary table
+      - name: generate summary table
         run: node generate-summary.js
 
-      - name: 📨 Read summary into output
+      - name: read summary into output
         id: read_summary
         run: |
           SUMMARY=$(cat cypress/reports/summary.html | sed ':a;N;$!ba;s/\n/ /g')
           echo "html=$SUMMARY" >> $GITHUB_OUTPUT
 
-      - name: ✉ Send test report via email
+      - name: send test report via email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.mailersend.net
