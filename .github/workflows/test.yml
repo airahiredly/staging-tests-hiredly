@@ -2,7 +2,7 @@ name: Run Cypress Tests
 
 on:
   schedule:
-    - cron: '0 18 * * *'  #2am malaysia time
+    - cron: '0 18 * * *'  #to send daily email at 2am malaysia time 
   push:
     branches: [main]
 
