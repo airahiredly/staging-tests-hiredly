@@ -28,19 +28,17 @@ jobs:
       - name: run cypress tests
         run: npx cypress run
 
-      - name: 📤 Send test report via email
-        if: always()
+      - name: send HTML test report
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: smtp.gmail.com
-          server_port: 465
+          server_address: smtp.mailersend.net
+          server_port: 587
           secure: true
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: 🧪 Cypress Test Results
+          subject: 🚀 Cypress Daily Report
           to: ${{ secrets.EMAIL_TO }}
-          from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
+          from: QA Bot <${{ secrets.EMAIL_USERNAME }}>
           body: |
-            Test run complete. Report attached.
-            Summary: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            attachments: cypress/reports/mochawesome-report.html      
+            Cypress test run complete. See attached report.
+          attachments: cypress/reports/mochawesome-report.html
