@@ -2,7 +2,7 @@ name: Run Cypress Tests
 
 on:
   schedule:
-    - cron: '0 18 * * *'  # 2AM Malaysia Time (MYT = UTC+8)
+    - cron: '0 18 * * *'  # 2AM Malaysia time
   push:
     branches: [main]
 
@@ -11,35 +11,51 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout repo
+      - name: 🧾 Checkout repo
         uses: actions/checkout@v3
 
-      - name: setup Node.js
+      - name: 🧪 Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      - name: install dependencies
+      - name: 📦 Install dependencies
         run: npm ci
 
-      - name: run Cypress tests with Mochawesome
+      - name: 🚀 Run Cypress with Mochawesome
         run: |
           chmod +x ./node_modules/.bin/cypress
-          npx cypress run --reporter mochawesome --reporter-options "reportDir=cypress/reports,overwrite=true,html=true,json=false"
+          npx cypress run --reporter mochawesome --reporter-options "reportDir=cypress/reports,overwrite=true,html=false,json=true"
 
-      - name: send HTML test report
-        if: always() 
+      - name: 🧠 Generate summary table
+        run: node generate-summary.js
+
+      - name: 📨 Read summary into output
+        id: read_summary
+        run: |
+          SUMMARY=$(cat cypress/reports/summary.html | sed ':a;N;$!ba;s/\n/ /g')
+          echo "html=$SUMMARY" >> $GITHUB_OUTPUT
+
+      - name: ✉ Send test report via email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.mailersend.net
           server_port: 587
-          secure: false
+          secure: true
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: ${{ job.status == 'success' && '✅ Cypress Tests Passed' || '❌ Cypress Tests Failed' }}
           to: ${{ secrets.EMAIL_TO }}
           from: QA Bot <${{ secrets.EMAIL_USERNAME }}>
+          content_type: text/html
           body: |
-            Cypress test run complete. See attached HTML report.
-            View this run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          attachments: cypress/reports/mochawesome.html
+            <h3>Cypress Test Summary</h3>
+            <p>Here’s the latest result from your scheduled run:</p>
+
+            ${{ steps.read_summary.outputs.html }}
+
+            <br>
+            <p>🔗 <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">View full run on GitHub</a></p>
+            <p>Workflow: ${{ github.workflow }}</p>
+            <p>Branch: ${{ github.ref }}</p>
+            <p>Run ID: ${{ github.run_id }}</p>
