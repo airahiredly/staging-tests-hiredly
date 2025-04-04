@@ -140,12 +140,6 @@ Cypress.Commands.add("filterJobs", function() {
   cy.contains('button', 'Apply').click({ force: true });
 });
 
-//APPLY JOB FROM CDP - DONE 
-Cypress.Commands.add("applyJobCDP", function() {
-  cy.get('.css-11of65p > .MuiInputBase-root > .MuiInputBase-input').type('hiredly{enter}');
-  cy.get('[href="/companies/hiredly"] > .css-1lktpz0 > .css-119oe8n').click();
-});
-
 //SET JOB ALERT - DONE
 Cypress.Commands.add("setJobAlert", function() {
       cy.signup();
