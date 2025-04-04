@@ -43,9 +43,12 @@ jobs:
         id: summary
         run: |
             echo "summary<<EOF" >> $GITHUB_OUTPUT
-            echo "<h2>Cypress Test Summary</h2>" >> $GITHUB_OUTPUT
-            echo "<table border='1' cellpadding='6' cellspacing='0' style='border-collapse: collapse;'>" >> $GITHUB_OUTPUT
-            echo "<thead><tr><th>Spec File</th><th>✅ Passed</th><th>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
+            echo "<h2>🌙 Daily Regression Test Summary</h2>" >> $GITHUB_OUTPUT
+            echo "<p>Hi team,</p>" >> $GITHUB_OUTPUT
+            echo "<p>Below is the latest automated regression test report from our scheduled workflow run. Use this summary to quickly spot any test failures and investigate if needed:</p>" >> $GITHUB_OUTPUT
+        
+            echo "<table border='1' cellpadding='6' cellspacing='0' style='border-collapse: collapse; font-family: sans-serif;'>" >> $GITHUB_OUTPUT
+            echo "<thead style='background-color: #f2f2f2;'><tr><th>Spec File</th><th>✅ Passed</th><th>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
         
             jq -r '
               .results[] |
@@ -58,8 +61,10 @@ jobs:
         
             echo "</tbody></table>" >> $GITHUB_OUTPUT
             echo "<br>" >> $GITHUB_OUTPUT
-            echo "<p>🔗 <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View this run on GitHub</a></p>" >> $GITHUB_OUTPUT
+            echo "<p>🔗 <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View full test run on GitHub</a></p>" >> $GITHUB_OUTPUT
+            echo "<p style='margin-top: 20px;'>—<br><em>This is an automated email from Cypress CI.</em></p>" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
+        
         
       - name: send test report via email
         uses: dawidd6/action-send-mail@v3
