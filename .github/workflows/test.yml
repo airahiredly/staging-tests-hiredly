@@ -39,13 +39,24 @@ jobs:
         run: |
           npx mochawesome-merge cypress/reports/*.json > cypress/reports/merged.json
 
+      - name: set email subject based on test results
+        id: subject
+        run: |
+            FAIL_COUNT=$(jq '[.results[].suites[].tests[] | select(.fail == true)] | length' cypress/reports/merged.json)
+            if [ "$FAIL_COUNT" -gt 0 ]; then
+              echo "value=❌ Cypress Tests Failed ($FAIL_COUNT failed)" >> $GITHUB_OUTPUT
+            else
+              echo "value=✅ Cypress Tests Passed" >> $GITHUB_OUTPUT
+            fi
+        
+
       - name: extract summary for HTML
         id: summary
         run: |
             echo "summary<<EOF" >> $GITHUB_OUTPUT
-            echo "<h2>🌙 Daily Regression Test Summary</h2>" >> $GITHUB_OUTPUT
+            echo "<h2>Daily Cypress Regression Test Summary ⭐</h2>" >> $GITHUB_OUTPUT
             echo "<p>Hi team,</p>" >> $GITHUB_OUTPUT
-            echo "<p>Below is the latest automated regression test report from our scheduled workflow run. Use this summary to quickly spot any test failures and investigate if needed:</p>" >> $GITHUB_OUTPUT
+            echo "<p>Below is the latest automated regression test report from our scheduled workflow run:</p>" >> $GITHUB_OUTPUT
         
             echo "<table border='1' cellpadding='6' cellspacing='0' style='border-collapse: collapse; font-family: sans-serif;'>" >> $GITHUB_OUTPUT
             echo "<thead style='background-color: #f2f2f2;'><tr><th>Spec File</th><th>✅ Passed</th><th>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
@@ -73,8 +84,8 @@ jobs:
             server_port: 465
             secure: true
             username: ${{ secrets.EMAIL_USERNAME }}
-            password: ${{ secrets.EMAIL_PASSWORD }}  # Should be your Gmail App Password
-            subject: ${{ job.status == 'success' && '✅ Cypress Tests Passed' || '❌ Cypress Tests Failed' }}
+            password: ${{ secrets.EMAIL_PASSWORD }}  
+            subject: ${{ steps.subject.outputs.value }}
             to: ${{ secrets.EMAIL_TO }}
             from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
             html_body: ${{ steps.summary.outputs.summary }}

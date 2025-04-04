@@ -8,7 +8,7 @@ describe('User Invalid Login Test', () => {
       cy.get('#filled-required-Email').type('testj@gmail.com'); 
       cy.get('#filled-required-Password').type('password1', { log: false }); 
 
-      cy.get('.MuiButton-containedPrimary').contains('Log In').click();
+      cy.get('.MuiButton-containedPrimary').contains('Fail').click();
 
       // verify login fail by checking for error message
       cy.contains('Invalid email or password.').should('be.visible');
