@@ -51,7 +51,7 @@ To add more, edit `cypress/support/commands.js`.
 
 ---
 
-## 👩‍💻 New Intern Setup
+## 👩‍💻 Setup for QA Team
 
 1. Clone the repo
 2. `npm install`
@@ -63,3 +63,5 @@ To add more, edit `cypress/support/commands.js`.
 ---
 
 Need help writing your first test? Refer to the Cypress Handbook in the QA Drive! 
+
+Last Updated April 2025 by Jyllian Kok E-Lyse
