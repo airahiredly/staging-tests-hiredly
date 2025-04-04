@@ -8,11 +8,7 @@ This project contains end-to-end (E2E) UI tests for the Hiredly staging site usi
 
 ```
 cypress/
-├── e2e/
-│   ├── login.cy.js                # Login with valid credentials
-│   ├── invalidLogin.cy.js         # Login with invalid credentials
-│   ├── resumeUpload.cy.js         # Resume uploads (homepage, profile)
-│   ├── jobApplication.cy.js       # Search, filter, and apply for jobs
+├── e2e/                           # Test script documentation is in the QA Drive!
 ├── fixtures/
 │   └── resume.pdf                 # Dummy test resume
 ├── support/

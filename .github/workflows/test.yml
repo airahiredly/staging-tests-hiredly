@@ -36,42 +36,38 @@ jobs:
         run: |
           npx mochawesome-merge cypress/reports/*.json > cypress/reports/merged.json
 
-      - name: extract summary for HTML
-        id: summary
-        run: |
-            {
-              echo "summary<<EOF"
-              echo "<h2>Cypress Test Summary</h2>"
-              echo "<table border='1' cellpadding='6' cellspacing='0' style='border-collapse: collapse;'>"
-              echo "<thead><tr><th>Spec File</th><th>✅ Passed</th><th>❌ Failed</th></tr></thead><tbody>"
+          - name: extract summary for HTML
+          id: summary
+          run: |
+            echo "summary<<EOF" >> $GITHUB_OUTPUT
+            echo "<h2>Cypress Test Summary</h2>" >> $GITHUB_OUTPUT
+            echo "<table border='1' cellpadding='6' cellspacing='0' style='border-collapse: collapse;'>" >> $GITHUB_OUTPUT
+            echo "<thead><tr><th>Spec File</th><th>✅ Passed</th><th>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
         
-              jq -r '
-                .results[] |
-                "<tr><td>\(.file)</td><td>" +
-                (([.suites[].tests[] | select(.pass == true)] | length) | tostring) +
-                "</td><td>" +
-                (([.suites[].tests[] | select(.fail == true)] | length) | tostring) +
-                "</td></tr>"
-              ' cypress/reports/merged.json
+            jq -r '
+              .results[] |
+              "<tr><td>" + .file + "</td><td>" +
+              ([.suites[].tests[] | select(.pass == true)] | length | tostring) +
+              "</td><td>" +
+              ([.suites[].tests[] | select(.fail == true)] | length | tostring) +
+              "</td></tr>"
+            ' cypress/reports/merged.json >> $GITHUB_OUTPUT
         
-              echo "</tbody></table>"
-              echo "<br>"
-              echo "<p>🔗 <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View this run on GitHub</a></p>"
-              echo "EOF"
-            } >> "$GITHUB_OUTPUT"
+            echo "</tbody></table>" >> $GITHUB_OUTPUT
+            echo "<br>" >> $GITHUB_OUTPUT
+            echo "<p>🔗 <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View this run on GitHub</a></p>" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
         
-
       - name: send test report via email
         uses: dawidd6/action-send-mail@v3
         with:
-              server_address: smtp.gmail.com  
-              server_port: 587
-              secure: true
-              username: ${{ secrets.EMAIL_USERNAME }}
-              password: ${{ secrets.EMAIL_PASSWORD }}
-              subject: ${{ job.status == 'success' && '✅ Cypress Tests Passed' || '❌ Cypress Tests Failed' }}
-              to: ${{ secrets.EMAIL_TO }}
-              from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
-              content_type: text/html
-              html_body: ${{ steps.summary.outputs.summary }}
-          
+            server_address: smtp.gmail.com
+            server_port: 465
+            secure: true
+            username: ${{ secrets.EMAIL_USERNAME }}
+            password: ${{ secrets.EMAIL_PASSWORD }}  # Should be your Gmail App Password
+            subject: ${{ job.status == 'success' && '✅ Cypress Tests Passed' || '❌ Cypress Tests Failed' }}
+            to: ${{ secrets.EMAIL_TO }}
+            from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
+            html_body: ${{ steps.summary.outputs.summary }}
+        
