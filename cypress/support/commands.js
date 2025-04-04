@@ -64,14 +64,14 @@ Cypress.Commands.add("applyJob", function() {
     cy.get('button[aria-label="apply-job-button"]').click();
   });
 
-//VIEW ALL JOBS FROM BULK APPLY
+//VIEW ALL JOBS FROM BULK APPLY - DONE
 Cypress.Commands.add("viewAllJobs", function() {
     cy.contains("View All Jobs").click();
 });
 
-//VIEW SIMILAR JOBS
+//VIEW SIMILAR JOBS - DONE 
 Cypress.Commands.add("viewSimilarJobs", function() {
-  cy.contains("View Similar Jobs").click();
+  cy.contains("View Similar Jobs").first().click();
 });
 
 //UPLOAD RESUME FROM HP - DONE
@@ -120,3 +120,38 @@ Cypress.Commands.add("uploadResumeSignup", function() {
     encoding: 'base64' //to ensure pdf doesn't get corrupted
 });
   });
+
+//NAVIGATE TO JLP - DONE
+Cypress.Commands.add("navigateJLP", function() {
+  cy.get('#jobs-tab').click();
+  cy.get('.css-rfqx2h').click(); //from FYP to JLP
+  });
+
+//NAVIGATE TO CLP - DONE
+Cypress.Commands.add("navigateCLP", function() {
+  cy.get('#companies-tab').click();
+});
+
+//FILTER JOBS (state = KL) - DONE 
+Cypress.Commands.add("filterJobs", function() {
+  cy.contains('button', 'Filter').click();
+  cy.contains('button', 'State').click();
+  cy.contains('button', 'Kuala Lumpur').click();
+  cy.contains('button', 'Apply').click({ force: true });
+});
+
+//APPLY JOB FROM CDP - DONE 
+Cypress.Commands.add("applyJobCDP", function() {
+  cy.get('.css-11of65p > .MuiInputBase-root > .MuiInputBase-input').type('hiredly{enter}');
+  cy.get('[href="/companies/hiredly"] > .css-1lktpz0 > .css-119oe8n').click();
+});
+
+//SET JOB ALERT - DONE
+Cypress.Commands.add("setJobAlert", function() {
+      cy.signup();
+      cy.get('.css-1v9datt').click();
+      cy.wait(1000);
+      cy.contains('Set Alert').click();
+      cy.get('input[placeholder="Eg. Data analyst"]').type('test');
+      cy.get('.jss75').click();
+});

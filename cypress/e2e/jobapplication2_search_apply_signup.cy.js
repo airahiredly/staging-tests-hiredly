@@ -3,7 +3,7 @@ describe ("Job Application Flow 2: Search, Apply, Signup", () => {
         cy.visit('https://staging-my.hiredly.com');
       });
     
-      it("search job and apply as visitor", () => {
+      it("Search Job and Apply as Visitor", () => {
         const timestamp = Date.now();
         const email = `testuser${timestamp}@gmail.com`;
       
@@ -16,7 +16,7 @@ describe ("Job Application Flow 2: Search, Apply, Signup", () => {
         cy.get('.PrivateSwitchBase-input').click();
         cy.get('.css-1ah1vqg').click();
         cy.wait(1000);
-        
+
         cy.get('input.MuiInputBase-input').first().type('TestName');
         cy.get('.PhoneInputInput').type('111111111');
         cy.get('#nationality-select').click();

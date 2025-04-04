@@ -3,7 +3,7 @@ describe('Job Application Flow 1: Login, Search, Apply', () => {
         cy.login("testj@gmail.com", "password");
       });
     
-      it("login and search testing job", () => {
+      it("Login, Search and Apply for a Testing Job", () => {
         cy.get('[alt="user-profile-image"]', {timeout: 10000}).should("be.visible");
         cy.search('testing');
         cy.applyJob();
