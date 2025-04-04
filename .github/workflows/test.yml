@@ -34,14 +34,14 @@ jobs:
           chmod +x ./node_modules/.bin/cypress
           npx cypress run --reporter mochawesome
         continue-on-error: true
-        
+
       - name: merge mochawesome reports
         run: |
           npx mochawesome-merge cypress/reports/*.json > cypress/reports/merged.json
 
-          - name: extract summary for HTML
-          id: summary
-          run: |
+      - name: extract summary for HTML
+        id: summary
+        run: |
             echo "summary<<EOF" >> $GITHUB_OUTPUT
             echo "<h2>Cypress Test Summary</h2>" >> $GITHUB_OUTPUT
             echo "<table border='1' cellpadding='6' cellspacing='0' style='border-collapse: collapse;'>" >> $GITHUB_OUTPUT
