@@ -19,20 +19,6 @@ cypress.config.js                  # Cypress configuration (viewport, timeouts, 
 
 ---
 
-## 🧪 Tests Coverage
-
-| Feature              | Covered In                | Notes                              |
-|---------------------|---------------------------|------------------------------------|
-| Login               | `login.cy.js`             | Using `cy.login()` command         |
-| Invalid Login       | `invalidLogin.cy.js`      | Checks error message               |
-| Job Search          | `jobApplication.cy.js`    | Search by keyword                  |
-| Filter by Location  | `jobApplication.cy.js`    | Currently filtering for KL         |
-| Apply to Job        | `jobApplication.cy.js`    | Visits job URL & clicks apply      |
-| Resume Upload (HP)  | `resumeUpload.cy.js`      | Uploads from homepage              |
-| Resume Upload (Profile) | `resumeUpload.cy.js` | Uploads from user profile          |
-
----
-
 ## 🧠 Custom Commands
 
 All reusable actions are abstracted into `commands.js`. Examples:
