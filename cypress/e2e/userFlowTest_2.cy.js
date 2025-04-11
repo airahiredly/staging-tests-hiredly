@@ -15,7 +15,7 @@ describe('Daily Regression Test - User Flow Test 2', () => {
             win.location.href = url;  // Open the URL in the same tab
           });
         });
-      cy.contains("TEST Company 2 Jan ").click();
+      cy.contains("TEST Company 2 Jan 1").click();
       cy.contains("Quick Apply").click();
         
       //Sign up
