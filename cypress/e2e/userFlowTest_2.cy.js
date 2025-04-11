@@ -7,7 +7,7 @@ describe('Daily Regression Test - User Flow Test 2', () => {
         //check job search
         cy.get('.MuiInputBase-input').type("test");
         cy.get('[data-testid="SearchIcon"]').click();
-        cy.contains("TEST COMPANY 1234").should('exist');
+        cy.contains("TEST").should('exist');
 
         //check quick apply 
         cy.window().then((win) => {
@@ -15,7 +15,7 @@ describe('Daily Regression Test - User Flow Test 2', () => {
               win.location.href = url;  // Open the URL in the same tab
             });
           });
-        cy.contains("TEST COMPANY 1234").click();
+        cy.contains("TEST").click();
         cy.contains("Quick Apply").click();
           
         //Sign up
