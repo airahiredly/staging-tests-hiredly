@@ -1,8 +1,6 @@
 name: Run Cypress Tests
 
 on:
-  schedule:
-    - cron: '0 18 * * *'  # 2AM Malaysia time (UTC+8)
   workflow_dispatch:
   push:
     branches: [master]
@@ -44,9 +42,9 @@ jobs:
         run: |
             FAIL_COUNT=$(jq '[.results[].suites[].tests[] | select(.fail == true)] | length' cypress/reports/merged.json)
             if [ "$FAIL_COUNT" -gt 0 ]; then
-              echo "value=❌ Cypress Tests Failed ($FAIL_COUNT failed)" >> $GITHUB_OUTPUT
+              echo "value=[TESTING] ❌ Cypress Tests Failed ($FAIL_COUNT failed)" >> $GITHUB_OUTPUT
             else
-              echo "value=✅ Cypress Tests Passed" >> $GITHUB_OUTPUT
+              echo "value=[TESTING] ✅ Cypress Tests Passed" >> $GITHUB_OUTPUT
             fi
         
 
