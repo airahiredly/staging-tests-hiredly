@@ -1,6 +1,6 @@
 describe('Daily Regression Test - User Flow Test 1', () => {
     beforeEach(() => {
-        .visit('https://staging-my.hiredly.com'); 
+        cy.visit('https://staging-my.hiredly.com'); 
     });
   
     it('Job Search, Quick Apply, Login, Resume Upload', () => {
@@ -17,7 +17,7 @@ describe('Daily Regression Test - User Flow Test 1', () => {
             });
           });
           cy.wait(3000);
-          cy.contains("TEST Company 2 Jan 1").click();
+          cy.contains("TEST Company 2 Jan 11").click();
           cy.contains("Quick Apply").click();
           cy.wait(3000);
           cy.get('.css-1uz15p4').click();
