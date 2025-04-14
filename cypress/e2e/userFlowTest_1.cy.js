@@ -1,6 +1,6 @@
 describe('Daily Regression Test - User Flow Test 1', () => {
     beforeEach(() => {
-        cy.visit('https://staging-my.hiredly.com'); 
+        .visit('https://staging-my.hiredly.com'); 
     });
   
     it('Job Search, Quick Apply, Login, Resume Upload', () => {
