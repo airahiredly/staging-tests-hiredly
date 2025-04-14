@@ -48,7 +48,7 @@ jobs:
             fi
         
 
-      - name: Extract Summary for HTML ✅⭐❌
+      - name: Extract Summary for HTML 
         id: summary
         run: |
             echo "summary<<EOF" >> $GITHUB_OUTPUT
