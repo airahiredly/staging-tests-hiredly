@@ -1,4 +1,4 @@
-describe('Daily Regression Test - WPT Icon Test', () => {
+describe('Daily Regression Test - 3.2 WPT Icon Test', () => {
     beforeEach(() => {
         cy.visit('https://staging-my.hiredly.com');
     });

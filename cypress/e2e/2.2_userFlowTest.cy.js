@@ -1,4 +1,4 @@
-describe('Daily Regression Test - User Flow Test 2', () => {
+describe('Daily Regression Test - 2.2 User Flow Test 2', () => {
   beforeEach(() => {
       cy.visit('https://staging-my.hiredly.com'); 
   });

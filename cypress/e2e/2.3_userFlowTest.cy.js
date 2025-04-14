@@ -5,7 +5,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
     }
   });
 
-describe('Daily Regression Test - User Flow Test 3', () => {
+describe('Daily Regression Test - 2.3 User Flow Test 3', () => {
     beforeEach(() => {
         cy.visit('https://staging-my.hiredly.com'); 
     });

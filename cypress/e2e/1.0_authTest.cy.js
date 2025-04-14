@@ -1,4 +1,11 @@
-describe('Daily Regression Test - Authentication Test', () => {
+Cypress.on('uncaught:exception', (err, runnable) => {
+  // Ignore clevertap not defined error
+  if (err.message.includes('clevertap is not defined')) {
+    return false;
+  }
+});
+
+describe('Daily Regression Test - 1.0 Authentication Test', () => {
     beforeEach(() => {
         cy.visit('https://staging-my.hiredly.com'); 
     });
@@ -42,17 +49,25 @@ describe('Daily Regression Test - Authentication Test', () => {
             cy.get('.sc-7f80a69e-26 > .MuiButtonBase-root').click();
             cy.get('.sc-59655bad-2').click({ force: true });
           };
+
+          //logout
+          const logout = () => {
+            cy.get('.css-5rvsge').click();
+            cy.get('#log-out-button').click();
+          }
         
           if (text.includes('Success')) {
             cy.log('Success');
             openLoginModal();
             performLoginTests();
+            logout();
           } else {
             cy.get('.sc-7f80a69e-26 > .MuiButtonBase-root').click();
             cy.get('.sc-59655bad-2').click({ force: true });
             performLoginTests();
+            logout();
           }
-        });        
+        });       
     });
 });
   
