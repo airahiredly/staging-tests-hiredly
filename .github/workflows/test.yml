@@ -48,36 +48,54 @@ jobs:
             fi
         
 
-      - name: Extract Summary for HTML
+      - name: Extract Summary for HTML ✅⭐❌
         id: summary
         run: |
             echo "summary<<EOF" >> $GITHUB_OUTPUT
             echo "<h2 style='color:#2c3e50; font-family: Arial, sans-serif;'>Daily Cypress Regression Test Summary ⭐</h2>" >> $GITHUB_OUTPUT
             echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Hi Team,</p>" >> $GITHUB_OUTPUT
             echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Below is the latest automated regression test report from our scheduled workflow run:</p>" >> $GITHUB_OUTPUT
-        
-            echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 70%; font-family: Arial, sans-serif; color:#333;'>" >> $GITHUB_OUTPUT
-            echo "<thead style='background-color:#4CAF50; color: white; text-align: left; font-size: 16px;'>" >> $GITHUB_OUTPUT
-            echo "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
-        
+
+            echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333;'>" >> $GITHUB_OUTPUT
+            echo "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" >> $GITHUB_OUTPUT
+            echo "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
+
             jq -r '
+              def descriptions:
+                {
+                  "specs/login.cy.js": "Tests login functionality",
+                  "specs/checkout.cy.js": "Covers the checkout flow",
+                  "specs/profile.cy.js": "Validates user profile features",
+                  "specs/search.cy.js": "Search functionality test cases",
+                  "specs/cart.cy.js": "Tests add/remove items from cart"
+                };
+
               .results[] |
-              "<tr style=\"background-color:#f9f9f9;\"><td style=\"padding: 8px; border: 1px solid#ddd;\">" + .file + "</td><td style=\"padding: 8px; border: 1px solid#ddd;\">" +
+              (
+                [.suites[].tests[] | select(.fail == true)] | length
+              ) as $failCount |
+              "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\"><td style=\"padding: 8px; border: 1px solid#ddd;\">" +
+              .file + "</td>" +
+              "<td style=\"padding: 8px; border: 1px solid#ddd;\">" +
+              (descriptions[.file] // "No description") + "</td>" +
+              "<td style=\"padding: 8px; border: 1px solid#ddd;\">" +
               ([.suites[].tests[] | select(.pass == true)] | length | tostring) +
               "</td><td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-              ([.suites[].tests[] | select(.fail == true)] | length | tostring) +
+              ($failCount | tostring) +
               "</td></tr>"
             ' cypress/reports/merged.json >> $GITHUB_OUTPUT
-        
+
             echo "</tbody></table>" >> $GITHUB_OUTPUT
             echo "<br>" >> $GITHUB_OUTPUT
-            echo "<p style='font-family: Arial, sans-serif; font-size: 16px;'>🔗 <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\" style='color:#4CAF50; text-decoration: none;'>View full test run on GitHub</a></p>" >> $GITHUB_OUTPUT
+            echo "<p style='font-family: Arial, sans-serif; font-size: 16px;'>🔗 <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\" style='color:#813dff; text-decoration: none;'>View full test run on GitHub</a></p>" >> $GITHUB_OUTPUT
             echo "<p style='font-family: Arial, sans-serif; font-size: 14px; margin-top: 20px;'>—<br><em>This is an automated email from Cypress CI.</em></p>" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
-        
-      - name: send test report via email
-        uses: dawidd6/action-send-mail@v3
-        with:
+
+
+                    
+                  - name: send test report via email
+                    uses: dawidd6/action-send-mail@v3
+                    with:
             server_address: smtp.gmail.com
             server_port: 465
             secure: true
