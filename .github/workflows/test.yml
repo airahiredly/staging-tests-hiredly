@@ -97,10 +97,10 @@ jobs:
             server_address: smtp.gmail.com
             server_port: 465
             secure: true
-            username: ${{ secrets.EMAIL_USERNAME_STAGING }}
-            password: ${{ secrets.EMAIL_PASSWORD_STAGING }}  
+            username: ${{ secrets.EMAIL_USERNAME }}
+            password: ${{ secrets.EMAIL_PASSWORD }}  
             subject: ${{ steps.subject.outputs.value }}
-            to: ${{ secrets.EMAIL_TO_STAGING }}
+            to: ${{ secrets.EMAIL_TO }}
             from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
             html_body: ${{ steps.summary.outputs.summary }}
         
