@@ -9,6 +9,7 @@ describe('Daily Regression Test - 2.5 User Flow Test 5 ', () => {
     });
 
     it('Check companies page on homepage', () => {
+        cy.wait(5000);
         cy.get('#mobile-companies-button').click();
         cy.get('.css-9d0drk > :nth-child(2) > .MuiButtonBase-root').click();
         cy.get('.css-gstdj5 > :nth-child(2)').click(); 

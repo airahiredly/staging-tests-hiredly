@@ -16,7 +16,7 @@ describe('Daily Regression Test - 2.4 User Flow Test 4', () => {
         cy.get('#filled-required-Email').clear().type("user001@gmail.com");
         cy.get('#filled-required-Password').clear().type('Paassword123');
         cy.get('.sc-7f80a69e-8 > .MuiButtonBase-root').click({ force: true });
-        cy.wait(3000);
+        cy.wait(5000);
 
         //navigate to Jobs Page
         cy.get('#mobile-jobs-button').click();
