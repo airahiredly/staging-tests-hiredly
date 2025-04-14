@@ -63,11 +63,11 @@ jobs:
             jq -r '
               def descriptions:
                 {
-                  "specs/login.cy.js": "Sign up, Password Reset, Invalid Login, Login",
-                  "specs/checkout.cy.js": "Job Search, Quick Apply, Login, Resume Upload",
-                  "specs/profile.cy.js": "Job Search, Quick Apply, Sign up, Resume Upload",
-                  "specs/search.cy.js": "Login, Check Application Status: Pending, Recommendation, Applied. Views Jobs",
-                  "specs/cart.cy.js": "Check WPT Icon on homepage"
+                  "cypress/e2e/authTest.cy.js": "Sign up, Password Reset, Invalid Login, Login",
+                  "cypress/e2e/userFlowTest_1.cy.js": "Job Search, Quick Apply, Login, Resume Upload",
+                  "cypress/e2e/userFlowTest_2.cy.js": "Job Search, Quick Apply, Sign up, Resume Upload",
+                  "cypress/e2e/userFlowTest_2.cy.js": "Login, Check Application Status: Pending, Recommendation, Applied. Views Jobs",
+                  "cypress/e2e/wpt_Icon_Test.cy.js": "Check WPT Icon on homepage"
                 };
 
               .results[] |

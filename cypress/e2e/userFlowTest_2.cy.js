@@ -7,6 +7,7 @@ describe('Daily Regression Test - User Flow Test 2', () => {
       //check job search
       cy.get('.MuiInputBase-input').type("test");
       cy.get('[data-testid="SearchIcon"]').click();
+      cy.wait(3000);
       cy.contains("TEST Company 2 Jan 1").should('exist');
 
       //check quick apply 
@@ -15,8 +16,11 @@ describe('Daily Regression Test - User Flow Test 2', () => {
             win.location.href = url;  // Open the URL in the same tab
           });
         });
+        cy.wait(3000);
       cy.contains("TEST Company 2 Jan 1").click();
+      cy.wait(3000);
       cy.contains("Quick Apply").click();
+      cy.wait(3000);
         
       //Sign up
       cy.get(':nth-child(1) > .MuiInputBase-root').type("user001@gmail.com");
