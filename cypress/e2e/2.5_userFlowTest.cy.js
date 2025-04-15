@@ -19,6 +19,7 @@ describe('Daily Regression Test - 2.5 User Flow Test 5 ', () => {
         cy.get('.css-gstdj5 > :nth-child(4)').click();
         cy.url().should('eq', 'https://staging-my.hiredly.com/companies?state_regions=Kuala+Lumpur&company_sizes=3');
         cy.get('.css-1p02y7z > :nth-child(3) > .MuiButtonBase-root').click();
+        cy.wait(3000);
         cy.url().should('eq', 'https://staging-my.hiredly.com/companies?state_regions=Kuala+Lumpur&company_sizes=3&page=2');
     });
 });
