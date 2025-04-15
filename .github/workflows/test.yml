@@ -66,14 +66,35 @@ jobs:
               "cypress/e2e/3.3_navigate_employer.cy.js": "Check WPT Icon on homepage"
             };
 
+            def categories: {
+              "Authentication": [
+                "cypress/e2e/1.0_authTest.cy.js"
+              ],
+              "User Flow": [
+                "cypress/e2e/2.1_userFlowTest.cy.js",
+                "cypress/e2e/2.2_userFlowTest.cy.js",
+                "cypress/e2e/2.3_userFlowTest.cy.js",
+                "cypress/e2e/2.4_userFlowTest.cy.js",
+                "cypress/e2e/2.5_userFlowTest.cy.js"
+              ],
+              "Features": [
+                "cypress/e2e/3.1_region_change_Test.cy.js",
+                "cypress/e2e/3.2_wpt_Icon_Test.cy.js",
+                "cypress/e2e/3.3_navigate_employer.cy.js"
+              ]
+            };
+
+            def get_category($spec):
+              (categories | to_entries[] | select(.value[] == $spec) | .key) // "Uncategorized";
+
             .results as $results |
             ($results | map(.file) | unique) as $uniqueFiles |
 
             "<h2 style=\"color:#2c3e50; font-family: Arial, sans-serif;\">Daily Cypress Regression Test Summary ⭐</h2>" +
             "<p style=\"font-family:Arial, sans-serif; font-size:16px; color:#34495e;\">Hi Team,</p>" +
             "<p style=\"font-family:Arial, sans-serif; font-size:16px; color:#34495e;\">Below is the latest automated regression test report from our scheduled workflow run:</p>" +
-            "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333;\">" +
-            "<thead style=\"background-color:#813dff; color: white; text-align: left; font-size: 16px;\"><tr><th style=\"padding: 12px;\">Spec File</th><th style=\"padding: 12px;\">📝 Description</th><th style=\"padding: 12px;\">✅ Passed</th><th style=\"padding: 12px;\">❌ Failed</th></tr></thead><tbody>" +
+            "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; color:#333;\">" +
+            "<thead style=\"background-color:#813dff; color: white; text-align: left; font-size: 16px;\"><tr><th style=\"padding: 12px;\">📂 Category</th><th style=\"padding: 12px;\">📄 Spec File</th><th style=\"padding: 12px;\">📝 Description</th><th style=\"padding: 12px;\">✅ Passed</th><th style=\"padding: 12px;\">❌ Failed</th></tr></thead><tbody>" +
 
             (
               $uniqueFiles[] as $spec |
@@ -81,10 +102,13 @@ jobs:
               ($r.suites | map(.tests) | flatten) as $tests |
               ($tests | map(select(.pass == true)) | length) as $passCount |
               ($tests | map(select(.fail == true)) | length) as $failCount |
-              "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\"><td style=\"padding: 8px; border: 1px solid #ddd;\">" + $spec +
-              "</td><td style=\"padding: 8px; border: 1px solid #ddd;\">" + (descriptions[$spec] // "No description") +
-              "</td><td style=\"padding: 8px; border: 1px solid #ddd;\">" + ($passCount|tostring) +
-              "</td><td style=\"padding: 8px; border: 1px solid #ddd;\">" + ($failCount|tostring) + "</td></tr>"
+              "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\">
+                <td style=\"padding: 8px; border: 1px solid #ddd;\">" + get_category($spec) + "</td>
+                <td style=\"padding: 8px; border: 1px solid #ddd;\">" + $spec + "</td>
+                <td style=\"padding: 8px; border: 1px solid #ddd;\">" + (descriptions[$spec] // "No description") + "</td>
+                <td style=\"padding: 8px; border: 1px solid #ddd;\">" + ($passCount|tostring) + "</td>
+                <td style=\"padding: 8px; border: 1px solid #ddd;\">" + ($failCount|tostring) + "</td>
+              </tr>"
             ) +
 
             "</tbody></table>" +
