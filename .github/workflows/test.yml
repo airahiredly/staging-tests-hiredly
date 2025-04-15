@@ -140,3 +140,5 @@ jobs:
             to: ${{ secrets.EMAIL_TO }}
             from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
             html_body: ${{ steps.summary.outputs.summary }}
+
+//latest 15/4/2025
