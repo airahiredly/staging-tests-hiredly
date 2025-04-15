@@ -8,6 +8,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 describe('Daily Regression Test - 2.4 User Flow Test 4', () => {
     beforeEach(() => {
         cy.visit('https://staging-my.hiredly.com/');
+        cy.viewport(1920, 1080);
     });
 
     it('Login, Navigate to Jobs page. Check Search Filter.', () => {
@@ -16,10 +17,10 @@ describe('Daily Regression Test - 2.4 User Flow Test 4', () => {
         cy.get('#filled-required-Email').clear().type("user001@gmail.com");
         cy.get('#filled-required-Password').clear().type('Paassword123');
         cy.get('.sc-7f80a69e-8 > .MuiButtonBase-root').click({ force: true });
-        cy.wait(5000);
+        cy.wait(3000);
 
         //navigate to Jobs Page
-        cy.get('#mobile-jobs-button').click();
+        cy.get('#jobs-tab').click();
         cy.get('.css-dwyj58').should('exist');
 
         //search job
@@ -40,7 +41,7 @@ describe('Daily Regression Test - 2.4 User Flow Test 4', () => {
         cy.wait(3000);
 
         //repeat testing process for non-login user
-        cy.get('#mobile-jobs-button').click();
+        cy.get('#jobs-tab').click();
         cy.get('.css-rohuh6 > span').click();
         cy.get('.css-qwka59').should('exist');
         cy.get('.css-rohuh6').click();

@@ -6,11 +6,12 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 describe('Daily Regression Test - 2.5 User Flow Test 5 ', () => {
     beforeEach(() => {
         cy.visit('https://staging-my.hiredly.com');
+        cy.viewport(1920, 1080);
     });
 
     it('Check companies page on homepage', () => {
-        cy.wait(5000);
-        cy.get('#mobile-companies-button').click();
+        cy.wait(3000);
+        cy.get('#companies-tab').click();
         cy.get('.css-9d0drk > :nth-child(2) > .MuiButtonBase-root').click();
         cy.get('.css-gstdj5 > :nth-child(2)').click(); 
         cy.url().should('eq', 'https://staging-my.hiredly.com/companies?state_regions=Kuala+Lumpur');
