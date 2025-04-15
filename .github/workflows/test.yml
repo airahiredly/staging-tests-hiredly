@@ -53,16 +53,20 @@ jobs:
         id: summary
         run: |
           {
-            echo "summary<<EOF"
-            echo "<h2 style='color:#2c3e50; font-family: Arial, sans-serif;'>Daily Cypress Regression Test Summary ⭐</h2>"
-            echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Hi Team,</p>"
-            echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Below is the latest automated regression test report from our scheduled workflow run:</p>"
+          summary_html=$(cat <<EOF
+          <h2 style='color:#2c3e50; font-family: Arial, sans-serif;'>Daily Cypress Regression Test Summary ⭐</h2>
+          <p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Hi Team,</p>
+          <p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Below is the latest automated regression test report from our scheduled workflow run:</p>
 
-            echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333;'>"
-            echo "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>"
-            echo "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>"
+          <table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333;'>
+          <thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>
+          <tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>
+          EOF
+          )
 
-            jq -r '
+            while IFS= read -r line; do
+              summary_html+=$'\n'"$line"
+            done < <(jq -r '
               def descriptions: {
                 "cypress/e2e/1.0_authTest.cy.js": "Sign up, Password Reset, Invalid Login, Login",
                 "cypress/e2e/2.1_userFlowTest.cy.js": "Job Search, Quick Apply, Login, Resume Upload",
@@ -110,14 +114,18 @@ jobs:
                   ($failCount | tostring) +
                   "</td></tr>"
                 )
-            ' cypress/reports/merged.json
+            ' cypress/reports/merged.json)
 
-            echo "</tbody></table>"
-            echo "<br>"
-            echo "<p style='font-family: Arial, sans-serif; font-size: 16px;'>🔗 <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\" style='color:#813dff; text-decoration: none;'>View full test run on GitHub</a></p>"
-            echo "<p style='font-family: Arial, sans-serif; font-size: 14px; margin-top: 20px;'>—<br><em>This is an automated email from Cypress CI.</em></p>"
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+            summary_html+=$'\n</tbody></table>'
+            summary_html+=$'\n<br>'
+            summary_html+=$'\n<p style="font-family: Arial, sans-serif; font-size: 16px;">🔗 <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" style="color:#813dff; text-decoration: none;">View full test run on GitHub</a></p>'
+            summary_html+=$'\n<p style="font-family: Arial, sans-serif; font-size: 14px; margin-top: 20px;">—<br><em>This is an automated email from Cypress CI.</em></p>'
+
+            echo "summary<<EOF" >> $GITHUB_OUTPUT
+            echo "$summary_html" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          }
+
 
       - name: send test report via email
         uses: dawidd6/action-send-mail@v3
