@@ -52,88 +52,81 @@ jobs:
       - name: Extract Summary for HTML 
         id: summary
         run: |
-          {
-            #!/usr/bin/env bash
-            summary_html=$(jq -r '
-            def descriptions: {
-              "cypress/e2e/1.0_authTest.cy.js": "Sign up, Password Reset, Invalid Login, Login",
-              "cypress/e2e/2.1_userFlowTest.cy.js": "Job Search, Quick Apply, Login, Resume Upload",
-              "cypress/e2e/2.2_userFlowTest.cy.js": "Job Search, Quick Apply, Sign up, Resume Upload",
-              "cypress/e2e/2.3_userFlowTest.cy.js": "Login, Check Application Status: Pending, Recommendation, Applied. Views Jobs",
-              "cypress/e2e/2.4_userFlowTest.cy.js": "Login, Navigate to Jobs page. Check Search Filter.",
-              "cypress/e2e/2.5_userFlowTest.cy.js": "Navigate company page, Check Search Filter",
-              "cypress/e2e/3.1_region_change_Test.cy.js": "Check region change on homepage",
-              "cypress/e2e/3.2_wpt_Icon_Test.cy.js": "Check WPT Icon on homepage",
-              "cypress/e2e/3.3_navigate_employer.cy.js": "Check WPT Icon on homepage"
-            };
+          summary_html=$(jq -r '
+          def descriptions: {
+            "cypress/e2e/1.0_authTest.cy.js": "Sign up, Password Reset, Invalid Login, Login",
+            "cypress/e2e/2.1_userFlowTest.cy.js": "Job Search, Quick Apply, Login, Resume Upload",
+            "cypress/e2e/2.2_userFlowTest.cy.js": "Job Search, Quick Apply, Sign up, Resume Upload",
+            "cypress/e2e/2.3_userFlowTest.cy.js": "Login, Check Application Status: Pending, Recommendation, Applied. Views Jobs",
+            "cypress/e2e/2.4_userFlowTest.cy.js": "Login, Navigate to Jobs page. Check Search Filter.",
+            "cypress/e2e/2.5_userFlowTest.cy.js": "Navigate company page, Check Search Filter",
+            "cypress/e2e/3.1_region_change_Test.cy.js": "Check region change on homepage",
+            "cypress/e2e/3.2_wpt_Icon_Test.cy.js": "Check WPT Icon on homepage",
+            "cypress/e2e/3.3_navigate_employer.cy.js": "Check WPT Icon on homepage"
+          };
 
-            def categories: {
-              "Authentication": [
-                "cypress/e2e/1.0_authTest.cy.js"
-              ],
-              "User Flow": [
-                "cypress/e2e/2.1_userFlowTest.cy.js",
-                "cypress/e2e/2.2_userFlowTest.cy.js",
-                "cypress/e2e/2.3_userFlowTest.cy.js",
-                "cypress/e2e/2.4_userFlowTest.cy.js",
-                "cypress/e2e/2.5_userFlowTest.cy.js"
-              ],
-              "Features": [
-                "cypress/e2e/3.1_region_change_Test.cy.js",
-                "cypress/e2e/3.2_wpt_Icon_Test.cy.js",
-                "cypress/e2e/3.3_navigate_employer.cy.js"
-              ]
-            };
+          def categories: {
+            "Authentication": ["cypress/e2e/1.0_authTest.cy.js"],
+            "User Flow": [
+              "cypress/e2e/2.1_userFlowTest.cy.js",
+              "cypress/e2e/2.2_userFlowTest.cy.js",
+              "cypress/e2e/2.3_userFlowTest.cy.js",
+              "cypress/e2e/2.4_userFlowTest.cy.js",
+              "cypress/e2e/2.5_userFlowTest.cy.js"
+            ],
+            "Features": [
+              "cypress/e2e/3.1_region_change_Test.cy.js",
+              "cypress/e2e/3.2_wpt_Icon_Test.cy.js",
+              "cypress/e2e/3.3_navigate_employer.cy.js"
+            ]
+          };
 
-            .results as $results |
-            "<h2 style=\"color:#2c3e50; font-family: Arial, sans-serif;\">Daily Cypress Regression Test Summary ⭐</h2>" +
-            "<p style=\"font-family: Arial, sans-serif; font-size:16px; color:#34495e;\">Hi Team,</p>" +
-            "<p style=\"font-family: Arial, sans-serif; font-size:16px; color:#34495e;\">Below is the latest automated regression test report from our scheduled workflow run:</p>" +
-            "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; color:#333;\">" +
-              "<thead style=\"background-color:#813dff; color: white; text-align: left; font-size: 16px;\"><tr>" +
-                "<th>📄 Spec File</th><th>📝 Description</th><th>✅ Passed</th><th>❌ Failed</th>" +
-              "</tr></thead><tbody>" +
-            ( categories | to_entries | map(
-                "<tr style=\"background-color:#dedcff; font-weight: bold;\"><td colspan=\"4\" style=\"padding: 10px;\">" + .key + "</td></tr>" +
-                ( .value | map(
-                      (. as $spec |
-                        ($results | map(select(.file == $spec))[0] as $r |
-                        ($r.suites | map(.tests) | flatten) as $tests |
-                        ($tests | map(select(.pass == true)) | length as $passCount |
-                        ($tests | map(select(.fail == true)) | length) as $failCount |
-                        "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\">" +
-                          "<td style=\"padding: 8px; border: 1px solid #ddd;\">" + $spec + "</td>" +
-                          "<td style=\"padding: 8px; border: 1px solid #ddd;\">" + (descriptions[$spec] // "No description") + "</td>" +
-                          "<td style=\"padding: 8px; border: 1px solid #ddd; text-align: center;\">" + ($passCount | tostring) + "</td>" +
-                          "<td style=\"padding: 8px; border: 1px solid #ddd; text-align: center;\">" + ($failCount | tostring) + "</td>" +
-                        "</tr>"
-                      )
-                  ) | join("")
-                )
-            ) | join("") ) +
-            "</tbody></table>" +
-            "<br><p style=\"font-family: Arial, sans-serif; font-size: 16px;\"><a href=\"https://github.com/wobbjobs/staging-tests-hiredly/actions/runs/14459848901\" style=\"color:#813dff; text-decoration: none;\">View full test run on GitHub</a></p>" +
-            "<p style=\"font-family: Arial, sans-serif; font-size: 14px; margin-top: 20px;\">—<br><em>This is an automated email from Cypress CI.</em></p>"
-            ' cypress/reports/merged.json)
+          .results as $results |
+          "<h2 style=\"color:#2c3e50; font-family: Arial, sans-serif;\">Daily Cypress Regression Test Summary ⭐</h2>" +
+          "<p style=\"font-family: Arial, sans-serif; font-size:16px; color:#34495e;\">Hi Team,</p>" +
+          "<p style=\"font-family: Arial, sans-serif; font-size:16px; color:#34495e;\">Below is the latest automated regression test report from our scheduled workflow run:</p>" +
+          "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; color:#333;\">" +
+            "<thead style=\"background-color:#813dff; color: white; text-align: left; font-size: 16px;\"><tr>" +
+              "<th>📄 Spec File</th><th>📝 Description</th><th>✅ Passed</th><th>❌ Failed</th>" +
+            "</tr></thead><tbody>" +
+          (categories | to_entries | map(
+            "<tr style=\"background-color:#dedcff; font-weight: bold;\"><td colspan=\"4\" style=\"padding: 10px;\">" + .key + "</td></tr>" +
+            (.value | map(
+              (. as $spec |
+                ($results | map(select(.file == $spec))[0] as $r |
+                ($r.suites | map(.tests) | flatten) as $tests |
+                ($tests | map(select(.pass == true)) | length) as $passCount |
+                ($tests | map(select(.fail == true)) | length) as $failCount |
+                "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\">" +
+                  "<td style=\"padding: 8px; border: 1px solid #ddd;\">" + $spec + "</td>" +
+                  "<td style=\"padding: 8px; border: 1px solid #ddd;\">" + (descriptions[$spec] // "No description") + "</td>" +
+                  "<td style=\"padding: 8px; border: 1px solid #ddd; text-align: center;\">" + ($passCount | tostring) + "</td>" +
+                  "<td style=\"padding: 8px; border: 1px solid #ddd; text-align: center;\">" + ($failCount | tostring) + "</td>" +
+                "</tr>"
+            )) | join("")
+          )) | join("")) +
+          "</tbody></table>" +
+          "<br><p style=\"font-family: Arial, sans-serif; font-size: 16px;\"><a href=\"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\" style=\"color:#813dff; text-decoration: none;\">View full test run on GitHub</a></p>" +
+          "<p style=\"font-family: Arial, sans-serif; font-size: 14px; margin-top: 20px;\">—<br><em>This is an automated email from Cypress CI.</em></p>"
+          ' cypress/reports/merged.json)
 
-            # Export to GitHub Output
-            echo "summary<<EOF" >> "$GITHUB_OUTPUT"
-            echo "$summary_html" >> "$GITHUB_OUTPUT"
-            echo "EOF" >> "$GITHUB_OUTPUT"
+          # Export to GitHub Output
+          echo "summary<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$summary_html" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
-            # Export to GitHub Step Summary
-            echo "$summary_html" >> "$GITHUB_STEP_SUMMARY"
-          }
+          # Export to GitHub Step Summary
+          echo "$summary_html" >> "$GITHUB_STEP_SUMMARY"
 
       - name: send test report via email
         uses: dawidd6/action-send-mail@v3
         with:
-            server_address: smtp.gmail.com
-            server_port: 465
-            secure: true
-            username: ${{ secrets.EMAIL_USERNAME }}
-            password: ${{ secrets.EMAIL_PASSWORD }}  
-            subject: ${{ steps.subject.outputs.value }}
-            to: ${{ secrets.EMAIL_TO }}
-            from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
-            html_body: ${{ steps.summary.outputs.summary }}
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}  
+          subject: ${{ steps.subject.outputs.value }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
+          html_body: ${{ steps.summary.outputs.summary }}
