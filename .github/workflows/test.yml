@@ -104,7 +104,7 @@ jobs:
                   ($tests | map(select(.fail == true)) | length) as $failCount |
                   "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\">
                     <td style=\"padding: 8px; border: 1px solid #ddd;\">" + $spec + "</td>
-                    <td style=\"padding: 8px; border: 1px solid #ddd;\">" + (descriptions[$spec] // \"No description\") + "</td>
+                    <td style=\"padding: 8px; border: 1px solid #ddd;\">" + (descriptions[$spec] // "No description") + "</td>
                     <td style=\"padding: 8px; border: 1px solid #ddd; text-align: center;\">" + ($passCount | tostring) + "</td>
                     <td style=\"padding: 8px; border: 1px solid #ddd; text-align: center;\">" + ($failCount | tostring) + "</td>
                   </tr>"
@@ -124,7 +124,6 @@ jobs:
 
           # Export to GitHub Step Summary
           echo "$summary_html" >> "$GITHUB_STEP_SUMMARY"
-
           }
 
       - name: send test report via email
