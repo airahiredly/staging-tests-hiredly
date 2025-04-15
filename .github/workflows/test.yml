@@ -99,7 +99,7 @@ jobs:
                       (. as $spec |
                         ($results | map(select(.file == $spec))[0] as $r |
                         ($r.suites | map(.tests) | flatten) as $tests |
-                        ($tests | map(select(.pass == true)) | length) as $passCount |
+                        ($tests | map(select(.pass == true)) | length as $passCount |
                         ($tests | map(select(.fail == true)) | length) as $failCount |
                         "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\">" +
                           "<td style=\"padding: 8px; border: 1px solid #ddd;\">" + $spec + "</td>" +
