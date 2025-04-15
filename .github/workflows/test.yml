@@ -90,29 +90,27 @@ jobs:
             "<p style=\"font-family: Arial, sans-serif; font-size:16px; color:#34495e;\">Hi Team,</p>" +
             "<p style=\"font-family: Arial, sans-serif; font-size:16px; color:#34495e;\">Below is the latest automated regression test report from our scheduled workflow run:</p>" +
             "<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; color:#333;\">" +
-            "<thead style=\"background-color:#813dff; color: white; text-align: left; font-size: 16px;\"><tr><th>📄 Spec File</th><th>📝 Description</th><th>✅ Passed</th><th>❌ Failed</th></tr></thead><tbody>" +
+            "<thead style=\"background-color:#813dff; color: white; text-align: left; font-size: 16px;\"><tr>" +
+              "<th>📄 Spec File</th><th>📝 Description</th><th>✅ Passed</th><th>❌ Failed</th>" +
+            "</tr></thead><tbody>" +
 
-            (
-              categories | to_entries | map(
+            ( categories | to_entries | map(
                 "<tr style=\"background-color:#dedcff; font-weight: bold;\"><td colspan=\"4\" style=\"padding: 10px;\">" + .key + "</td></tr>" +
-                (
-                  .value | map(
-                    $spec := .;
-                    # Select the first matching result for the given spec file (if any)
-                    ($results | map(select(.file == $spec)))[0] as $r |
-                    ($r.suites | map(.tests) | flatten) as $tests |
-                    ($tests | map(select(.pass == true)) | length) as $passCount |
-                    ($tests | map(select(.fail == true)) | length) as $failCount |
-                    "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\">
-                      <td style=\"padding: 8px; border: 1px solid #ddd;\">" + $spec + "</td>" +
-                      "<td style=\"padding: 8px; border: 1px solid #ddd;\">" + (descriptions[$spec] // \"No description\") + "</td>" +
-                      "<td style=\"padding: 8px; border: 1px solid #ddd; text-align: center;\">" + ($passCount | tostring) + "</td>" +
-                      "<td style=\"padding: 8px; border: 1px solid #ddd; text-align: center;\">" + ($failCount | tostring) + "</td>" +
-                    "</tr>"
-                  ) | join("")
-                )
-              ) | join("")
-            ) +
+                ( .value | map(
+                    (. as $spec |
+                      ($results | map(select(.file == $spec)))[0] as $r |
+                      ($r.suites | map(.tests) | flatten) as $tests |
+                      ($tests | map(select(.pass == true)) | length) as $passCount |
+                      ($tests | map(select(.fail == true)) | length) as $failCount |
+                      "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\">
+                        <td style=\"padding: 8px; border: 1px solid #ddd;\">" + $spec + "</td>" +
+                        "<td style=\"padding: 8px; border: 1px solid #ddd;\">" + (descriptions[$spec] // \"No description\") + "</td>" +
+                        "<td style=\"padding: 8px; border: 1px solid #ddd; text-align: center;\">" + ($passCount | tostring) + "</td>" +
+                        "<td style=\"padding: 8px; border: 1px solid #ddd; text-align: center;\">" + ($failCount | tostring) + "</td>" +
+                      "</tr>"
+                    )
+                ) | join("") )
+              ) | join("") ) +
 
             "</tbody></table>" +
             "<br><p style=\"font-family: Arial, sans-serif; font-size: 16px;\"><a href=\"https://github.com/wobbjobs/staging-tests-hiredly/actions/runs/14459848901\" style=\"color:#813dff; text-decoration: none;\">View full test run on GitHub</a></p>" +
