@@ -91,24 +91,24 @@ jobs:
             "<thead style=\"background-color:#813dff; color: white; text-align: left; font-size: 16px;\"><tr><th style=\"padding: 12px;\">Spec File</th><th style=\"padding: 12px;\">📝 Description</th><th style=\"padding: 12px;\">✅ Passed</th><th style=\"padding: 12px;\">❌ Failed</th></tr></thead><tbody>" +
             (
               categories
-              | to_entries[]
+              | to_entries[] 
               | .key as $category
               | (
-                  "<tr style=\"background-color:#dfe6e9;\"><td colspan=\"4\" style=\"padding:12px; font-weight:bold; font-size:16px;\">" + $category + "</td></tr>" +
-                  (
-                    .value[]
-                    | . as $file
-                    | input_filename as $input
-                    | (input | fromjson | .results[] | select(.file == $file)) as $result
-                    | ($result.suites[].tests[] | select(.fail == true) | length) as $failCount
-                    | "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\"><td style=\"padding: 8px; border: 1px solid #ddd;\">" +
-                      $result.file + "</td><td style=\"padding: 8px; border: 1px solid #ddd;\">" +
-                      (descriptions[$result.file] // "No description") + "</td><td style=\"padding: 8px; border: 1px solid #ddd;\">" +
-                      ($result.suites[].tests[] | select(.pass == true) | length | tostring) +
-                      "</td><td style=\"padding: 8px; border: 1px solid #ddd;\">" +
-                      ($failCount | tostring) + "</td></tr>"
-                  )
+                "<tr style=\"background-color:#dfe6e9;\"><td colspan=\"4\" style=\"padding:12px; font-weight:bold; font-size:16px;\">" + $category + "</td></tr>" +
+                (
+                  .value[]
+                  | . as $file
+                  | input_filename as $input
+                  | (input | fromjson | .results[] | select(.file == $file)) as $result
+                  | ($result.suites[].tests[] | select(.fail == true) | length) as $failCount
+                  | "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\"><td style=\"padding: 8px; border: 1px solid #ddd;\">" +
+                    $result.file + "</td><td style=\"padding: 8px; border: 1px solid #ddd;\">" +
+                    (descriptions[$result.file] // "No description") + "</td><td style=\"padding: 8px; border: 1px solid #ddd;\">" +
+                    ($result.suites[].tests[] | select(.pass == true) | length | tostring) +
+                    "</td><td style=\"padding: 8px; border: 1px solid #ddd;\">" +
+                    ($failCount | tostring) + "</td></tr>"
                 )
+              )
             ) +
             "</tbody></table>" +
             "<br><p style=\"font-family: Arial, sans-serif; font-size: 16px;\">🔗 <a href=\"https://github.com/wobbjobs/staging-tests-hiredly/actions/runs/14459848901\" style=\"color:#813dff; text-decoration: none;\">View full test run on GitHub</a></p>" +
