@@ -55,10 +55,6 @@ jobs:
             echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Hi Team,</p>" >> $GITHUB_OUTPUT
             echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Below is the latest automated regression test report from our scheduled workflow run:</p>" >> $GITHUB_OUTPUT
 
-            echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333;'>" >> $GITHUB_OUTPUT
-            echo "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" >> $GITHUB_OUTPUT
-            echo "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
-
             jq -r '
               def descriptions: {
                     "cypress/e2e/1.0_authTest.cy.js": "Sign up, Password Reset, Invalid Login, Login",
@@ -75,15 +71,18 @@ jobs:
               def getCategory(file):
                 if file | contains("1.0") then "1. Authentication"
                 elif file | startswith("cypress/e2e/2.") then "2. User Flow"
-                elif file | contains("3.") then "3. Feature"
+                elif file | contains("3.") then "3. Features"
                 else "Other"
                 end;
 
               # Group results by category
               [.results[] | {file: .file, category: getCategory(.file), suites: .suites}] | group_by(.category)[] |
-              # First print the category row
-              "<tr style=\"background-color:#f0e6ff; font-weight:bold;\"><td colspan=\"4\" style=\"padding: 8px; border: 1px solid#ddd;\">" + 
-              .[0].category + "</td></tr>" + 
+              # For each category, create a new table
+              "<h3 style='" + (if .[0].category == "1. Authentication" then "color:#27ae60" elif .[0].category == "2. User Flow" then "color:#2980b9" else "color:#8e44ad" end) + 
+              "; font-family: Arial, sans-serif; margin-top: 20px;'>" + .[0].category + "</h3>" +
+              "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>" +
+              "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" +
+              "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" +
               # Then print each test in the category
               (.[] | 
                 (.suites[].tests | map(select(.fail == true)) | length) as $failCount |
@@ -94,10 +93,10 @@ jobs:
                 (descriptions[.file] // "No description") + "</td>" +
                 "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + ($passCount | tostring) + "</td>" +
                 "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + ($failCount | tostring) + "</td></tr>"
-              )
+              ) +
+              "</tbody></table>"
             ' cypress/reports/merged.json >> $GITHUB_OUTPUT
 
-            echo "</tbody></table>" >> $GITHUB_OUTPUT
             echo "<br>" >> $GITHUB_OUTPUT
             echo "<p style='font-family: Arial, sans-serif; font-size: 16px;'>🔗 <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\" style='color:#813dff; text-decoration: none;'>View full test run on GitHub</a></p>" >> $GITHUB_OUTPUT
             echo "<p style='font-family: Arial, sans-serif; font-size: 14px; margin-top: 20px;'>—<br><em>This is an automated email from Cypress CI.</em></p>" >> $GITHUB_OUTPUT
