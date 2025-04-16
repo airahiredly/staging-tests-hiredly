@@ -1,6 +1,8 @@
 name: Run Cypress Tests
 
 on:
+  schedule:
+    - cron: '0 18 * * *'  # 2AM Malaysia time (UTC+8)
   workflow_dispatch:
   push:
     branches: [master]
@@ -87,7 +89,11 @@ jobs:
 
             jq -r '
               def descriptions: {
-                "cypress/e2e/2.1_userFlowTest.cy.js": "Job Search, Quick Apply, Login, Resume Upload"
+                "cypress/e2e/2.1_userFlowTest.cy.js": "Job Search, Quick Apply, Login, Resume Upload",
+                "cypress/e2e/2.2_userFlowTest.cy.js": "Job Search, Quick Apply, Sign up, Resume Upload",
+                "cypress/e2e/2.3_userFlowTest.cy.js": "Login, Check Application Status: Pending, Recommendation, Applied. Views Jobs",
+                "cypress/e2e/2.4_userFlowTest.cy.js": "Login, Navigate to Jobs page. Check Search Filter.",
+                "cypress/e2e/2.5_userFlowTest.cy.js": "Navigate company page, Check Search Filter"
               };
               
               [.results[] | select(.file | startswith("cypress/e2e/2."))] | 
@@ -113,7 +119,7 @@ jobs:
               def descriptions: {
                 "cypress/e2e/3.1_region_change_Test.cy.js": "Check region change on homepage",
                 "cypress/e2e/3.2_wpt_Icon_Test.cy.js": "Check WPT Icon on homepage",
-                "cypress/e2e/3.3_navigate_employer.cy.js": "Check WPT Icon on homepage"
+                "cypress/e2e/3.3_navigate_employer.cy.js": "Check navigation button to ED"
               };
               
               [.results[] | select(.file | contains("3."))] | 
