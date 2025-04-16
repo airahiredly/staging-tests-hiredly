@@ -74,8 +74,8 @@ jobs:
               
               def getCategory(file):
                 if file | contains("1.0") then "1. Authentication"
-                elif file | contains("2.") then "2. User Flow"
-                elif file | contains("3.") then "3. Features"
+                elif file | startswith("cypress/e2e/2.") then "2. User Flow"
+                elif file | contains("3.") then "3. Feature"
                 else "Other"
                 end;
 
