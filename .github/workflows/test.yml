@@ -85,7 +85,7 @@ jobs:
             echo "<h3 style='color:#2c3e50; font-family: Arial, sans-serif; margin-top: 20px;'>2. User Flow</h3>" >> $GITHUB_OUTPUT
             echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>" >> $GITHUB_OUTPUT
             echo "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" >> $GITHUB_OUTPUT
-            echo "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>Description</th><th style='padding: 12px;'>Passed</th><th style='padding: 12px;'>Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
+            echo "<tr><th style='padding: 12px;'>📄 Spec Filee</th><th style='padding: 12px;'>D📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
 
             jq -r '
               def descriptions: {
@@ -113,7 +113,7 @@ jobs:
             echo "<h3 style='color:#2c3e50; font-family: Arial, sans-serif; margin-top: 20px;'>3. Features</h3>" >> $GITHUB_OUTPUT
             echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>" >> $GITHUB_OUTPUT
             echo "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" >> $GITHUB_OUTPUT
-            echo "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>Description</th><th style='padding: 12px;'>Passed</th><th style='padding: 12px;'>Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
+            echo "<tr><th style='padding: 12px;'>📄 Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
 
             jq -r '
               def descriptions: {
