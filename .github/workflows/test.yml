@@ -55,6 +55,7 @@ jobs:
             echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Hi Team,</p>" >> $GITHUB_OUTPUT
             echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Below is the latest automated regression test report from our scheduled workflow run:</p>" >> $GITHUB_OUTPUT
 
+            # First generate the category headers and tables
             jq -r '
               def descriptions: {
                     "cypress/e2e/1.0_authTest.cy.js": "Sign up, Password Reset, Invalid Login, Login",
@@ -76,30 +77,28 @@ jobs:
                 end;
 
               [.results[] | {file: .file, category: getCategory(.file), suites: .suites}] | 
-              group_by(.category)[] |
-              (
-                "<h3 style='" + 
-                (if .[0].category == "1. Authentication" then "color:#27ae60" 
-                elif .[0].category == "2. User Flow" then "color:#2980b9" 
-                else "color:#8e44ad" end) + 
-                "; font-family: Arial, sans-serif; margin-top: 20px;'>" + 
-                .[0].category + "</h3>" +
-                "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>" +
-                "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" +
-                "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" +
-                (reduce .[] as $item (""; 
-                  . + (
-                    ($item.suites[].tests | map(select(.fail == true)) | length) as $failCount |
-                    ($item.suites[].tests | map(select(.pass == true)) | length) as $passCount |
-                    "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\">" +
-                    "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + ($item.file | split("/")[-1]) + "</td>" +
-                    "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + (descriptions[$item.file] // "No description") + "</td>" +
-                    "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + ($passCount | tostring) + "</td>" +
-                    "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + ($failCount | tostring) + "</td></tr>"
-                  )
-                )) +
-                "</tbody></table>"
-              )
+              group_by(.category)[] | 
+              (.[0].category) as $category |
+              if $category == "1. Authentication" then
+                "<h3 style='color:#27ae60; font-family: Arial, sans-serif; margin-top: 20px;'>1. Authentication</h3>"
+              elif $category == "2. User Flow" then
+                "<h3 style='color:#2980b9; font-family: Arial, sans-serif; margin-top: 20px;'>2. User Flow</h3>"
+              else
+                "<h3 style='color:#8e44ad; font-family: Arial, sans-serif; margin-top: 20px;'>3. Features</h3>"
+              end +
+              "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>" +
+              "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" +
+              "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" +
+              (.[] | 
+                (.suites[].tests | map(select(.fail == true)) | length) as $failCount |
+                (.suites[].tests | map(select(.pass == true)) | length) as $passCount |
+                "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\">" +
+                "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + (.file | split("/")[-1]) + "</td>" +
+                "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + (descriptions[.file] // "No description") + "</td>" +
+                "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + ($passCount | tostring) + "</td>" +
+                "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + ($failCount | tostring) + "</td></tr>"
+              ) +
+              "</tbody></table>"
             ' cypress/reports/merged.json >> $GITHUB_OUTPUT
 
             echo "<br>" >> $GITHUB_OUTPUT
