@@ -40,81 +40,74 @@ jobs:
       - name: set email subject based on test results
         id: subject
         run: |
-            FAIL_COUNT=$(jq '[.results[].suites[].tests[] | select(.fail == true)] | length' cypress/reports/merged.json)
-            if [ "$FAIL_COUNT" -gt 0 ]; then
-              echo "value=[ENGINEERING] ❌ Cypress Tests Failed ($FAIL_COUNT failed)" >> $GITHUB_OUTPUT
-            else
-              echo "value=[ENGINEERING] ✅ Cypress Tests Passed" >> $GITHUB_OUTPUT
-            fi
-        
+          FAIL_COUNT=$(jq '[.results[].suites[].tests[] | select(.fail == true)] | length' cypress/reports/merged.json)
+          if [ "$FAIL_COUNT" -gt 0 ]; then
+            echo "value=[ENGINEERING] ❌ Cypress Tests Failed ($FAIL_COUNT failed)" >> $GITHUB_OUTPUT
+          else
+            echo "value=[ENGINEERING] ✅ Cypress Tests Passed" >> $GITHUB_OUTPUT
+          fi
 
       - name: Extract Summary for HTML 
         id: summary
         run: |
-            echo "summary<<EOF" >> $GITHUB_OUTPUT
-            echo "<h2 style='color:#2c3e50; font-family: Arial, sans-serif;'>Daily Cypress Regression Test Summary ⭐</h2>" >> $GITHUB_OUTPUT
-            echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Hi Team,</p>" >> $GITHUB_OUTPUT
-            echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Below is the latest automated regression test report from our scheduled workflow run:</p>" >> $GITHUB_OUTPUT
+          echo "summary<<EOF" >> $GITHUB_OUTPUT
+          echo "<h2 style='color:#2c3e50; font-family: Arial, sans-serif;'>Daily Cypress Regression Test Summary ⭐</h2>" >> $GITHUB_OUTPUT
+          echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Hi Team,</p>" >> $GITHUB_OUTPUT
+          echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Below is the latest automated regression test report from our scheduled workflow run:</p>" >> $GITHUB_OUTPUT
 
-            echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333;'>" >> $GITHUB_OUTPUT
-            echo "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" >> $GITHUB_OUTPUT
-            echo "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
+          echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333;'>" >> $GITHUB_OUTPUT
+          echo "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" >> $GITHUB_OUTPUT
+          echo "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
 
-            jq -r '
-              def descriptions: {
-                    "cypress/e2e/1.0_authTest.cy.js": "Sign up, Password Reset, Invalid Login, Login",
-                    "cypress/e2e/2.1_userFlowTest.cy.js": "Job Search, Quick Apply, Login, Resume Upload",
-                    "cypress/e2e/2.2_userFlowTest.cy.js": "Job Search, Quick Apply, Sign up, Resume Upload",
-                    "cypress/e2e/2.3_userFlowTest.cy.js": "Login, Check Application Status: Pending, Recommendation, Applied. Views Jobs",
-                    "cypress/e2e/2.4_userFlowTest.cy.js": "Login, Navigate to Jobs page. Check Search Filter.",
-                    "cypress/e2e/2.5_userFlowTest.cy.js": "Navigate company page, Check Search Filter",
-                    "cypress/e2e/3.1_region_change_Test.cy.js": "Check region change on homepage",
-                    "cypress/e2e/3.2_wpt_Icon_Test.cy.js": "Check WPT Icon on homepage",
-                    "cypress/e2e/3.3_navigate_employer.cy.js": "Check WPT Icon on homepage"
-                  };
-              
-              def getCategory(file):
-                if file | contains("1.0") then "1. Authentication"
-                elif file | contains("2.") then "2. User Flow"
-                elif file | contains("3.") then "3. Features"
-                else "Other"
-                end;
+          jq -r '
+            def descriptions: {
+              "cypress/e2e/1.0_authTest.cy.js": "Sign up, Password Reset, Invalid Login, Login",
+              "cypress/e2e/2.1_userFlowTest.cy.js": "Job Search, Quick Apply, Login, Resume Upload",
+              "cypress/e2e/2.2_userFlowTest.cy.js": "Job Search, Quick Apply, Sign up, Resume Upload",
+              "cypress/e2e/2.3_userFlowTest.cy.js": "Login, Check Application Status: Pending, Recommendation, Applied. Views Jobs",
+              "cypress/e2e/2.4_userFlowTest.cy.js": "Login, Navigate to Jobs page. Check Search Filter.",
+              "cypress/e2e/2.5_userFlowTest.cy.js": "Navigate company page, Check Search Filter",
+              "cypress/e2e/3.1_region_change_Test.cy.js": "Check region change on homepage",
+              "cypress/e2e/3.2_wpt_Icon_Test.cy.js": "Check WPT Icon on homepage",
+              "cypress/e2e/3.3_navigate_employer.cy.js": "Check WPT Icon on homepage"
+            };
 
-              # Group results by category
-              .results | group_by(getCategory(.file))[] |
-              # First print the category row
-              "<tr style=\"background-color:#f0e6ff; font-weight:bold;\"><td colspan=\"4\" style=\"padding: 8px; border: 1px solid#ddd;\">" + 
-              (.[0] | getCategory(.file)) + "</td></tr>" + 
-              # Then print each test in the category
-              (.[] | 
-                ([.suites[].tests[] | select(.fail == true)] | length) as $failCount |
-                "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\"><td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-                .file + "</td>" +
-                "<td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-                (descriptions[.file] // "No description") + "</td>" +
-                "<td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-                ([.suites[].tests[] | select(.pass == true)] | length | tostring) +
-                "</td><td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-                ($failCount | tostring) +
-                "</td></tr>"
-              )
-            ' cypress/reports/merged.json >> $GITHUB_OUTPUT
+            def getCategory(file):
+              if file | contains("1.0") then "1. Authentication"
+              elif file | contains("2.") then "2. User Flow"
+              elif file | contains("3.") then "3. Features"
+              else "Other"
+              end;
 
-            echo "</tbody></table>" >> $GITHUB_OUTPUT
-            echo "<br>" >> $GITHUB_OUTPUT
-            echo "<p style='font-family: Arial, sans-serif; font-size: 16px;'>🔗 <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\" style='color:#813dff; text-decoration: none;'>View full test run on GitHub</a></p>" >> $GITHUB_OUTPUT
-            echo "<p style='font-family: Arial, sans-serif; font-size: 14px; margin-top: 20px;'>—<br><em>This is an automated email from Cypress CI.</em></p>" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-                    
+            .results
+            | map(. as $r | {file: $r.file, category: getCategory($r.file), description: descriptions[$r.file] // "No description", passed: ($r.suites[].tests[] | select(.pass == true) | length), failed: ($r.suites[].tests[] | select(.fail == true) | length)})
+            | group_by(.category)
+            | .[] as $group
+            | "<tr style=\"background-color:#f0e6ff; font-weight:bold;\"><td colspan=\"4\" style=\"padding: 8px; border: 1px solid#ddd;\">\($group[0].category)</td></tr>"
+              + ($group[]
+                  | "<tr style=\"background-color:\(if .failed > 0 then "#ffe6e6" else "#f9f9f9" end);\">" +
+                    "<td style=\"padding: 8px; border: 1px solid#ddd;\">\(.file)</td>" +
+                    "<td style=\"padding: 8px; border: 1px solid#ddd;\">\(.description)</td>" +
+                    "<td style=\"padding: 8px; border: 1px solid#ddd;\">\(.passed)</td>" +
+                    "<td style=\"padding: 8px; border: 1px solid#ddd;\">\(.failed)</td></tr>"
+                )
+          ' cypress/reports/merged.json >> $GITHUB_OUTPUT
+
+          echo "</tbody></table>" >> $GITHUB_OUTPUT
+          echo "<br>" >> $GITHUB_OUTPUT
+          echo "<p style='font-family: Arial, sans-serif; font-size: 16px;'>🔗 <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\" style='color:#813dff; text-decoration: none;'>View full test run on GitHub</a></p>" >> $GITHUB_OUTPUT
+          echo "<p style='font-family: Arial, sans-serif; font-size: 14px; margin-top: 20px;'>—<br><em>This is an automated email from Cypress CI.</em></p>" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: send test report via email
         uses: dawidd6/action-send-mail@v3
         with:
-            server_address: smtp.gmail.com
-            server_port: 465
-            secure: true
-            username: ${{ secrets.EMAIL_USERNAME }}
-            password: ${{ secrets.EMAIL_PASSWORD }}  
-            subject: ${{ steps.subject.outputs.value }}
-            to: ${{ secrets.EMAIL_TO }}
-            from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
-            html_body: ${{ steps.summary.outputs.summary }}
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}  
+          subject: ${{ steps.subject.outputs.value }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
+          html_body: ${{ steps.summary.outputs.summary }}
