@@ -72,20 +72,32 @@ jobs:
                     "cypress/e2e/3.2_wpt_Icon_Test.cy.js": "Check WPT Icon on homepage",
                     "cypress/e2e/3.3_navigate_employer.cy.js": "Check WPT Icon on homepage"
                   };
+              
+              def getCategory(file):
+                if file | contains("1.0") then "1. Authentication"
+                elif file | contains("2.") then "2. User Flow"
+                elif file | contains("3.") then "3. Features"
+                else "Other"
+                end;
 
-              .results[] |
-              (
-                [.suites[].tests[] | select(.fail == true)] | length
-              ) as $failCount |
-              "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\"><td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-              .file + "</td>" +
-              "<td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-              (descriptions[.file] // "No description") + "</td>" +
-              "<td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-              ([.suites[].tests[] | select(.pass == true)] | length | tostring) +
-              "</td><td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-              ($failCount | tostring) +
-              "</td></tr>"
+              # Group results by category
+              .results | group_by(getCategory(.file))[] |
+              # First print the category row
+              "<tr style=\"background-color:#f0e6ff; font-weight:bold;\"><td colspan=\"4\" style=\"padding: 8px; border: 1px solid#ddd;\">" + 
+              (.[0] | getCategory(.file)) + "</td></tr>" + 
+              # Then print each test in the category
+              (.[] | 
+                ([.suites[].tests[] | select(.fail == true)] | length) as $failCount |
+                "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\"><td style=\"padding: 8px; border: 1px solid#ddd;\">" +
+                .file + "</td>" +
+                "<td style=\"padding: 8px; border: 1px solid#ddd;\">" +
+                (descriptions[.file] // "No description") + "</td>" +
+                "<td style=\"padding: 8px; border: 1px solid#ddd;\">" +
+                ([.suites[].tests[] | select(.pass == true)] | length | tostring) +
+                "</td><td style=\"padding: 8px; border: 1px solid#ddd;\">" +
+                ($failCount | tostring) +
+                "</td></tr>"
+              )
             ' cypress/reports/merged.json >> $GITHUB_OUTPUT
 
             echo "</tbody></table>" >> $GITHUB_OUTPUT
@@ -106,5 +118,3 @@ jobs:
             to: ${{ secrets.EMAIL_TO }}
             from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
             html_body: ${{ steps.summary.outputs.summary }}
-        
-#updated on 9/4/2025
