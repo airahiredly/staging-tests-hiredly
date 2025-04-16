@@ -59,20 +59,12 @@ jobs:
             echo "<h3 style='color:#2c3e50; font-family: Arial, sans-serif; margin-top: 20px;'>1. Authentication</h3>" >> $GITHUB_OUTPUT
             echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>" >> $GITHUB_OUTPUT
             echo "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" >> $GITHUB_OUTPUT
-            echo "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
+            echo "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>Description</th><th style='padding: 12px;'>Passed</th><th style='padding: 12px;'>Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
 
             jq -r '
               def descriptions: {
-                    "cypress/e2e/1.0_authTest.cy.js": "Sign up, Password Reset, Invalid Login, Login",
-                    "cypress/e2e/2.1_userFlowTest.cy.js": "Job Search, Quick Apply, Login, Resume Upload",
-                    "cypress/e2e/2.2_userFlowTest.cy.js": "Job Search, Quick Apply, Sign up, Resume Upload",
-                    "cypress/e2e/2.3_userFlowTest.cy.js": "Login, Check Application Status: Pending, Recommendation, Applied. Views Jobs",
-                    "cypress/e2e/2.4_userFlowTest.cy.js": "Login, Navigate to Jobs page. Check Search Filter.",
-                    "cypress/e2e/2.5_userFlowTest.cy.js": "Navigate company page, Check Search Filter",
-                    "cypress/e2e/3.1_region_change_Test.cy.js": "Check region change on homepage",
-                    "cypress/e2e/3.2_wpt_Icon_Test.cy.js": "Check WPT Icon on homepage",
-                    "cypress/e2e/3.3_navigate_employer.cy.js": "Check WPT Icon on homepage"
-                  };
+                "cypress/e2e/1.0_authTest.cy.js": "Sign up, Password Reset, Invalid Login, Login"
+              };
               
               [.results[] | select(.file | contains("1.0"))] | 
               .[] | 
@@ -91,24 +83,16 @@ jobs:
             echo "<h3 style='color:#2c3e50; font-family: Arial, sans-serif; margin-top: 20px;'>2. User Flow</h3>" >> $GITHUB_OUTPUT
             echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>" >> $GITHUB_OUTPUT
             echo "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" >> $GITHUB_OUTPUT
-            echo "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
+            echo "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>Description</th><th style='padding: 12px;'>Passed</th><th style='padding: 12px;'>Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
 
             jq -r '
               def descriptions: {
-                    "cypress/e2e/1.0_authTest.cy.js": "Sign up, Password Reset, Invalid Login, Login",
-                    "cypress/e2e/2.1_userFlowTest.cy.js": "Job Search, Quick Apply, Login, Resume Upload",
-                    "cypress/e2e/2.2_userFlowTest.cy.js": "Job Search, Quick Apply, Sign up, Resume Upload",
-                    "cypress/e2e/2.3_userFlowTest.cy.js": "Login, Check Application Status: Pending, Recommendation, Applied. Views Jobs",
-                    "cypress/e2e/2.4_userFlowTest.cy.js": "Login, Navigate to Jobs page. Check Search Filter.",
-                    "cypress/e2e/2.5_userFlowTest.cy.js": "Navigate company page, Check Search Filter",
-                    "cypress/e2e/3.1_region_change_Test.cy.js": "Check region change on homepage",
-                    "cypress/e2e/3.2_wpt_Icon_Test.cy.js": "Check WPT Icon on homepage",
-                    "cypress/e2e/3.3_navigate_employer.cy.js": "Check WPT Icon on homepage"
-                  };
+                "cypress/e2e/2.1_userFlowTest.cy.js": "Job Search, Quick Apply, Login, Resume Upload"
+              };
               
               [.results[] | select(.file | startswith("cypress/e2e/2."))] | 
               .[] | 
-                (.suites[].tests | map(select(.fail == true)) | length as $failCount |
+                (.suites[].tests | map(select(.fail == true)) | length) as $failCount |
                 (.suites[].tests | map(select(.pass == true)) | length) as $passCount |
                 "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\"><td style=\"padding: 8px; border: 1px solid#ddd;\">" +
                 (.file | split("/")[-1]) + "</td>" +
@@ -123,20 +107,14 @@ jobs:
             echo "<h3 style='color:#2c3e50; font-family: Arial, sans-serif; margin-top: 20px;'>3. Features</h3>" >> $GITHUB_OUTPUT
             echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>" >> $GITHUB_OUTPUT
             echo "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" >> $GITHUB_OUTPUT
-            echo "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
+            echo "<tr><th style='padding: 12px;'>Spec File</th><th style='padding: 12px;'>Description</th><th style='padding: 12px;'>Passed</th><th style='padding: 12px;'>Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
 
             jq -r '
               def descriptions: {
-                    "cypress/e2e/1.0_authTest.cy.js": "Sign up, Password Reset, Invalid Login, Login",
-                    "cypress/e2e/2.1_userFlowTest.cy.js": "Job Search, Quick Apply, Login, Resume Upload",
-                    "cypress/e2e/2.2_userFlowTest.cy.js": "Job Search, Quick Apply, Sign up, Resume Upload",
-                    "cypress/e2e/2.3_userFlowTest.cy.js": "Login, Check Application Status: Pending, Recommendation, Applied. Views Jobs",
-                    "cypress/e2e/2.4_userFlowTest.cy.js": "Login, Navigate to Jobs page. Check Search Filter.",
-                    "cypress/e2e/2.5_userFlowTest.cy.js": "Navigate company page, Check Search Filter",
-                    "cypress/e2e/3.1_region_change_Test.cy.js": "Check region change on homepage",
-                    "cypress/e2e/3.2_wpt_Icon_Test.cy.js": "Check WPT Icon on homepage",
-                    "cypress/e2e/3.3_navigate_employer.cy.js": "Check WPT Icon on homepage"
-                  };
+                "cypress/e2e/3.1_region_change_Test.cy.js": "Check region change on homepage",
+                "cypress/e2e/3.2_wpt_Icon_Test.cy.js": "Check WPT Icon on homepage",
+                "cypress/e2e/3.3_navigate_employer.cy.js": "Check WPT Icon on homepage"
+              };
               
               [.results[] | select(.file | contains("3."))] | 
               .[] | 
