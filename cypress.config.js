@@ -1,19 +1,30 @@
-// cypress.config.js
+// module.exports = {
+//   e2e: {
+//     viewportWidth: 1440,
+//     viewportHeight: 720,
+//     pageLoadTimeout: 120000,
+//     setupNodeEvents(on, config) {
+
+//     },
+//   },
+// };
+
 const { defineConfig } = require('cypress');
-const fs = require('fs');
-const path = require('path');
 
 module.exports = defineConfig({
   e2e: {
-    setupNodeEvents(on, config) {
-      on('task', {
-        saveMetrics(metrics) {
-          const filePath = path.join('cypress', 'reports', 'pageMetrics.json');
-          fs.writeFileSync(filePath, JSON.stringify(metrics, null, 2));
-          return null;
-        }
-      });
-      return config;
+    viewportWidth: 1440,
+    viewportHeight: 720,
+    pageLoadTimeout: 120000,
+    video: false,
+    reporter: 'mochawesome',
+    reporterOptions: {
+      reportDir: 'cypress/reports',
+      overwrite: false,
+      html: false,
+      json: true
     },
   },
 });
+
+
