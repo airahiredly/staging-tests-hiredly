@@ -2,7 +2,8 @@ name: Run Cypress Tests
 
 on:
   schedule:
-    - cron: '0 18 * * *'  # 2AM Malaysia time (UTC+8)
+    # Runs at the start of every hour, every day (00:00, 01:00, 02:00... UTC)
+    - cron: '0 * * * *'
   workflow_dispatch:
   push:
     branches: [master]
@@ -13,13 +14,16 @@ jobs:
 
     steps:
       - name: checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3 # Consider updating to @v4
 
       - name: setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v3 # Consider updating to @v4
         with:
           node-version: 20
+          # Consider adding cache: 'npm' for faster installs
 
+      # Note: Global install is generally not recommended for CI.
+      # Better to have mochawesome-merge as a dev dependency in package.json
       - name: install mochawesome-merge
         run: npm install -g mochawesome-merge
 
@@ -29,65 +33,105 @@ jobs:
       - name: clean previous mochawesome reports
         run: rm -rf cypress/reports/*
 
+      # Note: Explicitly setting --reporter here overrides cypress.config.js.
+      # If using cypress-mochawesome-reporter, ensure correct name and config.
       - name: run Cypress with Mochawesome
         run: |
           chmod +x ./node_modules/.bin/cypress
+          # Make sure 'mochawesome' is the correct reporter name expected by Cypress based on your setup.
+          # If you installed 'cypress-mochawesome-reporter', you might not need the --reporter flag if configured in cypress.config.js
           npx cypress run --reporter mochawesome
-        continue-on-error: true
+        continue-on-error: true # Job will pass even if tests fail, relies on later steps for status
 
+      # Note: Simple glob merge can fail with many files or special names.
+      # Consider using: find cypress/reports -name 'mochawesome*.json' -type f -size +0c -print0 | xargs -0 --no-run-if-empty npx mochawesome-merge > cypress/reports/merged.json
       - name: merge mochawesome reports
         run: |
           npx mochawesome-merge cypress/reports/*.json > cypress/reports/merged.json
+        # Consider adding checks if merge failed or produced empty/invalid JSON
 
+      # Note: This jq query might be fragile if the JSON structure varies slightly.
+      # Consider using safe navigation: jq '([.results[]?.suites[]?.tests[]? | select(.fail == true)] // []) | length'
       - name: set email subject based on test results
         id: subject
         run: |
+            # Check if jq exists and merged.json exists and is valid before running jq
+            if ! command -v jq &> /dev/null; then
+              echo "::error::jq not found. Cannot determine test status."
+              echo "value=[ENGINEERING] ❓ Cypress Test Status Unknown (jq missing)" >> $GITHUB_OUTPUT
+              exit 0 # Allow workflow to continue but indicate unknown status
+            fi
+            if [ ! -s cypress/reports/merged.json ] || ! jq '.' cypress/reports/merged.json > /dev/null 2>&1; then
+              echo "::warning::merged.json is missing, empty, or invalid. Cannot determine failure count."
+              echo "value=[ENGINEERING] ❗ Cypress Report Generation Failed" >> $GITHUB_OUTPUT
+              exit 0 # Allow workflow to continue but indicate reporting failure
+            fi
+
             FAIL_COUNT=$(jq '[.results[].suites[].tests[] | select(.fail == true)] | length' cypress/reports/merged.json)
             if [ "$FAIL_COUNT" -gt 0 ]; then
               echo "value=[ENGINEERING] ❌ Cypress Tests Failed ($FAIL_COUNT failed)" >> $GITHUB_OUTPUT
             else
               echo "value=[ENGINEERING] ✅ Cypress Tests Passed" >> $GITHUB_OUTPUT
             fi
+        continue-on-error: false # Allow this step to fail if jq fails unexpectedly after checks
 
-      - name: Extract Summary for HTML 
+      - name: Extract Summary for HTML
         id: summary
         run: |
+            # Check if jq exists and merged.json exists and is valid before running jq
+            if ! command -v jq &> /dev/null; then
+              echo "::error::jq not found. Cannot generate HTML summary."
+              # Provide minimal HTML error for email body
+              echo "summary<<EOF" >> $GITHUB_OUTPUT
+              echo "<h3>Generation Error</h3><p>jq command not found on runner.</p>" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+              exit 1 # Fail this step
+            fi
+            if [ ! -s cypress/reports/merged.json ] || ! jq '.' cypress/reports/merged.json > /dev/null 2>&1; then
+               echo "::warning::merged.json is missing, empty, or invalid. Cannot generate HTML summary."
+               # Provide minimal HTML error for email body
+               echo "summary<<EOF" >> $GITHUB_OUTPUT
+               echo "<h3>Generation Error</h3><p>merged.json report file is missing, empty, or invalid.</p>" >> $GITHUB_OUTPUT
+               echo "EOF" >> $GITHUB_OUTPUT
+               exit 1 # Fail this step
+            fi
+
             echo "summary<<EOF" >> $GITHUB_OUTPUT
-            echo "<h2 style='color:#2c3e50; font-family: Arial, sans-serif;'>Daily Cypress Regression Test Summary ⭐</h2>" >> $GITHUB_OUTPUT
+            # --- Start HTML ---
+            echo "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Cypress Test Summary</title></head><body>" >> $GITHUB_OUTPUT
+            echo "<h2 style='color:#2c3e50; font-family: Arial, sans-serif;'>Hourly Cypress Regression Test Summary ⭐</h2>" >> $GITHUB_OUTPUT
             echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Hi Team,</p>" >> $GITHUB_OUTPUT
             echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Below is the latest automated regression test report from our scheduled workflow run:</p>" >> $GITHUB_OUTPUT
 
             # Authentication Table
             echo "<h3 style='color:#2c3e50; font-family: Arial, sans-serif; margin-top: 20px;'>1. Authentication</h3>" >> $GITHUB_OUTPUT
-            echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>" >> $GITHUB_OUTPUT
+            echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>" >> $GITHUB_OUTPUT
             echo "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" >> $GITHUB_OUTPUT
             echo "<tr><th style='padding: 12px;'>📄 Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
-
+            # Note: Consider using safer jq queries with '? // default' if structure might vary
             jq -r '
               def descriptions: {
                 "cypress/e2e/1.0_authTest.cy.js": "Sign up, Password Reset, Invalid Login, Login"
               };
-              
-              [.results[] | select(.file | contains("1.0"))] | 
-              .[] | 
-                (.suites[].tests | map(select(.fail == true)) | length) as $failCount |
-                (.suites[].tests | map(select(.pass == true)) | length) as $passCount |
+              [.results[]? | select(.file? | test("1.0_authTest"))] | # More specific filter? Or test("1\\.\\d+") ?
+              .[]? |
+                (.suites[]?.tests | map(select(.fail == true)) | length) as $failCount |
+                (.suites[]?.tests | map(select(.pass == true)) | length) as $passCount |
                 "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\"><td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-                (.file | split("/")[-1]) + "</td>" +
-                "<td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-                (descriptions[.file] // "No description") + "</td>" +
+                (.file? | split("/")[-1] // "N/A") + "</td>" +
+                "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + (descriptions[.file?] // "No description") + "</td>" +
                 "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + ($passCount | tostring) + "</td>" +
                 "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + ($failCount | tostring) + "</td></tr>"
+              // empty
             ' cypress/reports/merged.json >> $GITHUB_OUTPUT
             echo "</tbody></table>" >> $GITHUB_OUTPUT
 
             # User Flow Table
             echo "<h3 style='color:#2c3e50; font-family: Arial, sans-serif; margin-top: 20px;'>2. User Flow</h3>" >> $GITHUB_OUTPUT
-            echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>" >> $GITHUB_OUTPUT
+            echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>" >> $GITHUB_OUTPUT
             echo "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" >> $GITHUB_OUTPUT
-            echo "<tr><th style='padding: 12px;'>📄 Spec Filee</th><th style='padding: 12px;'>D📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
-
-            jq -r '
+            echo "<tr><th style='padding: 12px;'>📄 Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
+             jq -r '
               def descriptions: {
                 "cypress/e2e/2.1_userFlowTest.cy.js": "Job Search, Quick Apply, Login, Resume Upload",
                 "cypress/e2e/2.2_userFlowTest.cy.js": "Job Search, Quick Apply, Sign up, Resume Upload",
@@ -95,60 +139,79 @@ jobs:
                 "cypress/e2e/2.4_userFlowTest.cy.js": "Login, Navigate to Jobs page. Check Search Filter.",
                 "cypress/e2e/2.5_userFlowTest.cy.js": "Navigate company page, Check Search Filter"
               };
-              
-              [.results[] | select(.file | startswith("cypress/e2e/2."))] | 
-              .[] | 
-                (.suites[].tests | map(select(.fail == true)) | length) as $failCount |
-                (.suites[].tests | map(select(.pass == true)) | length) as $passCount |
+              [.results[]? | select(.file? | startswith("cypress/e2e/2."))] |
+              .[]? |
+                (.suites[]?.tests | map(select(.fail == true)) | length) as $failCount |
+                (.suites[]?.tests | map(select(.pass == true)) | length) as $passCount |
                 "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\"><td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-                (.file | split("/")[-1]) + "</td>" +
-                "<td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-                (descriptions[.file] // "No description") + "</td>" +
+                (.file? | split("/")[-1] // "N/A") + "</td>" +
+                "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + (descriptions[.file?] // "No description") + "</td>" +
                 "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + ($passCount | tostring) + "</td>" +
                 "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + ($failCount | tostring) + "</td></tr>"
+              // empty
             ' cypress/reports/merged.json >> $GITHUB_OUTPUT
             echo "</tbody></table>" >> $GITHUB_OUTPUT
 
-            # Features Table (if any)
+            # Features Table
             echo "<h3 style='color:#2c3e50; font-family: Arial, sans-serif; margin-top: 20px;'>3. Features</h3>" >> $GITHUB_OUTPUT
-            echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 80%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>" >> $GITHUB_OUTPUT
+            echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>" >> $GITHUB_OUTPUT
             echo "<thead style='background-color:#813dff; color: white; text-align: left; font-size: 16px;'>" >> $GITHUB_OUTPUT
             echo "<tr><th style='padding: 12px;'>📄 Spec File</th><th style='padding: 12px;'>📝 Description</th><th style='padding: 12px;'>✅ Passed</th><th style='padding: 12px;'>❌ Failed</th></tr></thead><tbody>" >> $GITHUB_OUTPUT
-
             jq -r '
               def descriptions: {
                 "cypress/e2e/3.1_region_change_Test.cy.js": "Check region change on homepage",
                 "cypress/e2e/3.2_wpt_Icon_Test.cy.js": "Check WPT Icon on homepage",
                 "cypress/e2e/3.3_navigate_employer.cy.js": "Check navigation button to ED"
               };
-              
-              [.results[] | select(.file | contains("3."))] | 
-              .[] | 
-                (.suites[].tests | map(select(.fail == true)) | length) as $failCount |
-                (.suites[].tests | map(select(.pass == true)) | length) as $passCount |
+              [.results[]? | select(.file? | startswith("cypress/e2e/3."))] |
+              .[]? |
+                (.suites[]?.tests | map(select(.fail == true)) | length) as $failCount |
+                (.suites[]?.tests | map(select(.pass == true)) | length) as $passCount |
                 "<tr style=\"background-color:" + (if $failCount > 0 then "#ffe6e6" else "#f9f9f9" end) + ";\"><td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-                (.file | split("/")[-1]) + "</td>" +
-                "<td style=\"padding: 8px; border: 1px solid#ddd;\">" +
-                (descriptions[.file] // "No description") + "</td>" +
+                (.file? | split("/")[-1] // "N/A") + "</td>" +
+                "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + (descriptions[.file?] // "No description") + "</td>" +
                 "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + ($passCount | tostring) + "</td>" +
                 "<td style=\"padding: 8px; border: 1px solid#ddd;\">" + ($failCount | tostring) + "</td></tr>"
+              // empty
             ' cypress/reports/merged.json >> $GITHUB_OUTPUT
             echo "</tbody></table>" >> $GITHUB_OUTPUT
 
+            # Footer
             echo "<br>" >> $GITHUB_OUTPUT
             echo "<p style='font-family: Arial, sans-serif; font-size: 16px;'>🔗 <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\" style='color:#813dff; text-decoration: none;'>View full test run on GitHub</a></p>" >> $GITHUB_OUTPUT
             echo "<p style='font-family: Arial, sans-serif; font-size: 14px; margin-top: 20px;'>—<br><em>This is an automated email from Cypress CI.</em></p>" >> $GITHUB_OUTPUT
+            echo "</body></html>" >> $GITHUB_OUTPUT # Close HTML
+            # --- End HTML ---
             echo "EOF" >> $GITHUB_OUTPUT
-                    
+        continue-on-error: true # Allow workflow to continue if HTML generation fails
+
       - name: send test report via email
+        # Consider adding condition: if: always() to ensure email sends even on failure
         uses: dawidd6/action-send-mail@v3
         with:
-            server_address: smtp.gmail.com
-            server_port: 465
-            secure: true
-            username: ${{ secrets.EMAIL_USERNAME }}
-            password: ${{ secrets.EMAIL_PASSWORD }}  
-            subject: ${{ steps.subject.outputs.value }}
-            to: ${{ secrets.EMAIL_TO }}
-            from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
-            html_body: ${{ steps.summary.outputs.summary }}
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: ${{ steps.subject.outputs.value || '[ENGINEERING] ❗ Cypress Workflow Error (Subject Generation Failed)' }} # Add fallback subject
+          to: ${{ secrets.EMAIL_TO }}
+          from: Cypress Bot <${{ secrets.EMAIL_USERNAME }}>
+          # Consider adding fallback html_body using format() like in previous versions
+          html_body: ${{ steps.summary.outputs.summary || '<h3>Workflow Error</h3><p>Could not generate HTML report summary.</p>' }}
+
+      # Consider adding artifact upload step
+      # - name: Upload Cypress reports artifact
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: cypress-reports-${{ github.run_id }}
+      #     path: cypress/reports
+      #     retention-days: 7
+
+      # Consider adding a final status check step to fail the job if tests failed or reports failed
+      # - name: Final Job Status Check
+      #   if: always()
+      #   run: |
+      #     # Add logic to check steps.cypress.outcome, steps.subject.outputs.value etc.
+      #     # exit 1 if necessary
