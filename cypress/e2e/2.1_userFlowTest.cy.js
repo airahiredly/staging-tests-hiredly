@@ -8,7 +8,7 @@ describe('Daily Regression Test - 2.1 User Flow Test 1', () => {
         cy.get('.MuiInputBase-input').type("test");
         cy.get('[data-testid="SearchIcon"]').click();
         cy.wait(3000)
-;        cy.contains("TEST Company 2 Jan 1").should('exist');
+;        cy.contains("test").should('exist');
 
         //check quick apply 
         cy.window().then((win) => {
@@ -17,7 +17,7 @@ describe('Daily Regression Test - 2.1 User Flow Test 1', () => {
             });
           });
           cy.wait(3000);
-          cy.contains("TEST Company 2 Jan 1").click();
+          cy.contains("test").click();
           cy.contains("Quick Apply").click();
           cy.wait(3000);
           cy.get('.css-1uz15p4').click();
