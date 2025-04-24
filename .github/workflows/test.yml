@@ -99,7 +99,7 @@ jobs:
             echo "summary<<EOF" >> $GITHUB_OUTPUT
             # --- Start HTML ---
             echo "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Cypress Test Summary</title></head><body>" >> $GITHUB_OUTPUT
-            echo "<h2 style='color:#2c3e50; font-family: Arial, sans-serif;'>Hourly Cypress Regression Test Summary ⭐</h2>" >> $GITHUB_OUTPUT
+            echo "<h2 style='color:#2c3e50; font-family: Arial, sans-serif;'>Daily Cypress Regression Test Summary ⭐</h2>" >> $GITHUB_OUTPUT
             echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Hi Team,</p>" >> $GITHUB_OUTPUT
             echo "<p style='font-family:Arial, sans-serif; font-size:16px; color:#34495e;'>Below is the latest automated regression test report from our scheduled workflow run:</p>" >> $GITHUB_OUTPUT
 
