@@ -206,7 +206,7 @@ jobs:
             echo "Processing response time data from $RESPONSE_TIME_FILE..." # Log to workflow
             HTML_CONTENT+="<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; color:#333; margin-bottom: 20px;'>"
             HTML_CONTENT+="<thead style='background-color:#1abc9c; color: white; text-align: left; font-size: 16px;'>" # Use a different color for this table?
-            HTML_CONTENT+="<tr><th style='padding: 12px;'>🌐 URL</th><th style='padding: 12px;'>⏰ Response Time (ms)</th></tr></thead><tbody>"
+            HTML_CONTENT+="<tr><th style='padding: 12px;'>🌐 URL</th><th style='padding: 12px;'>⏰ Page Loading Time (ms)</th></tr></thead><tbody>"
             # Use jq to parse the response times JSON and create HTML table rows
             HTML_CONTENT+=$(jq -r '
               .[] | # Iterate over each object in the array
