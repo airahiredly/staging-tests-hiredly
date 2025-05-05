@@ -4,8 +4,11 @@ describe('Website Response Time Measurement', () => {
     // --- Configuration ---
     // Add the URLs you want to test here
     const urlsToTest = [
-      'https://www.google.com', // Replace with your actual URLs
-      'https://www.cypress.io',
+      'https://staging-my.hiredly.com/', // Replace with your actual URLs
+      'https://staging-my.hiredly.com/employer',
+      'https://staging-my.hiredly.com/jobs',
+      'https://staging-my.hiredly.com/companies',
+      'https://staging-my.hiredly.com/drop-resume',
       // Add more URLs as needed
       // 'https://your-staging-site.com',
       // 'https://your-production-site.com/specific-page'
