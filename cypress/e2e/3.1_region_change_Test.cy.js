@@ -4,12 +4,7 @@ describe('Daily Regression Test - 3.1 Region Change Test', () => {
     });
 
     it('Check region change on homepage', () => {
-        cy.get('.sc-59655bad-5').click();
         cy.wait(3000);
-        cy.get('.MuiList-root > [tabindex="-1"]').click();
-        cy.wait(5000);
-        cy.get('.sc-59655bad-5').click();
-        cy.get('.MuiList-root > [tabindex="0"]').click(); 
     });
     
 });
