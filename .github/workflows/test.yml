@@ -1,9 +1,6 @@
 name: Run Cypress Tests
 
 on:
-  schedule:
-    # Note: Cron uses UTC time. '0 18 * * *' UTC is 2:00 AM MYT (UTC+8)
-    - cron: '0 18 * * *'
   workflow_dispatch:
   push:
     branches: [master]
