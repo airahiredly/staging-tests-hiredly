@@ -7,7 +7,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Daily Regression Test - 1.0 Authentication Test', () => {
     beforeEach(() => {
-        cy.visit('https://staging-my.hiredly.com');
+        cy.visit('https://my.hiredly.com/');
         cy.viewport(1920, 1080); 
     });
   
