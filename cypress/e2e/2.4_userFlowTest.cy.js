@@ -28,9 +28,8 @@ describe('Daily Regression Test - 2.4 User Flow Test 4', () => {
         cy.get('.MuiBadge-root > .MuiButtonBase-root').click();
         cy.get(':nth-child(5) > .css-3g02yh').click();
         cy.get('input[type="checkbox"].PrivateSwitchBase-input').check({ force: true });
-        cy.get(':nth-child(2) > .css-1v8dqrk > .css-1e0j3z2 > .css-69avll > .css-1qvvesz > .css-13uuchu > .css-1nsfdkm > .css-1sd0r98').should('exist');
-        cy.get(':nth-child(2) > .css-121g4g9').click();
-        cy.get('.css-xieyt > .MuiTypography-root').should('exist');
+        cy.get('.css-1qjab2s > .MuiButtonBase-root').click();
+        cy.contains('Desa').should('exist');
         cy.wait(3000);
         cy.visit('https://staging-my.hiredly.com/');
         cy.wait(3000);
@@ -48,8 +47,7 @@ describe('Daily Regression Test - 2.4 User Flow Test 4', () => {
         cy.get('.MuiBadge-root > .MuiButtonBase-root').click();
         cy.get(':nth-child(5) > .css-3g02yh').click();
         cy.get('input[type="checkbox"].PrivateSwitchBase-input').check({ force: true });
-        cy.get(':nth-child(2) > .css-1v8dqrk > .css-1e0j3z2 > .css-69avll > .css-1qvvesz > .css-13uuchu > .css-1nsfdkm > .css-1sd0r98').should('exist');
-        cy.get(':nth-child(2) > .css-121g4g9').click();
-        cy.get('.css-xieyt > .MuiTypography-root').should('exist');
+        cy.get('.css-1qjab2s > .MuiButtonBase-root').click();
+        cy.contains('Desa').should('exist');
     });
 });

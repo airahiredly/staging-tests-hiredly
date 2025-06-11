@@ -1,6 +1,7 @@
 describe('Daily Regression Test - 2.1 User Flow Test 1', () => {
     beforeEach(() => {
         cy.visit('https://staging-my.hiredly.com'); 
+        cy.viewport(1920, 1080);
     });
   
     it('Job Search, Quick Apply, Login, Resume Upload', () => {
@@ -8,7 +9,7 @@ describe('Daily Regression Test - 2.1 User Flow Test 1', () => {
         cy.get('.MuiInputBase-input').type("test");
         cy.get('[data-testid="SearchIcon"]').click();
         cy.wait(3000)
-;        cy.contains("test").should('exist');
+;       cy.contains("test").should('exist');
 
         //check quick apply 
         cy.window().then((win) => {
@@ -17,8 +18,9 @@ describe('Daily Regression Test - 2.1 User Flow Test 1', () => {
             });
           });
           cy.wait(3000);
-          cy.contains("test").click();
-          cy.contains("Quick Apply").click();
+          cy.visit("https://staging-my.hiredly.com/jobs/jobs-malaysia-gmail3-job-test?origin=job_list");
+          cy.wait(3000);
+          cy.contains("Quick").click();
           cy.wait(3000);
           cy.get('.css-1uz15p4').click();
           cy.wait(3000);

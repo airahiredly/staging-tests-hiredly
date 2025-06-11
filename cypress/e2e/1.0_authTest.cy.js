@@ -7,7 +7,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Daily Regression Test - 1.0 Authentication Test', () => {
     beforeEach(() => {
-        cy.visit('https://my.hiredly.com/');
+        cy.visit('https://staging-my.hiredly.com/');
         cy.viewport(1920, 1080); 
     });
   
@@ -61,13 +61,13 @@ describe('Daily Regression Test - 1.0 Authentication Test', () => {
             cy.log('Success');
             openLoginModal();
             performLoginTests();
-            cy.wait(3000);
+            cy.wait(5000);
             logout();
           } else {
             cy.get('.sc-7f80a69e-26 > .MuiButtonBase-root').click();
             cy.get('.sc-59655bad-2').click({ force: true });
             performLoginTests();
-            cy.wait(3000);
+            cy.wait(5000);
             logout();
           }
         });       

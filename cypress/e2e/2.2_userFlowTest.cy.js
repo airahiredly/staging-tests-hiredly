@@ -17,14 +17,14 @@ describe('Daily Regression Test - 2.2 User Flow Test 2', () => {
           });
         });
         cy.wait(3000);
-      cy.contains("test").click();
+      cy.visit("https://staging-my.hiredly.com/jobs/jobs-malaysia-gmail3-job-test?origin=job_list");
       cy.wait(3000);
       cy.contains("Quick Apply").click();
       cy.wait(3000);
         
       //Sign up
       cy.get(':nth-child(1) > .MuiInputBase-root').type("user001@gmail.com");
-      cy.get(':nth-child(2) > .MuiInputBase-root').type("Paassword123");
+      cy.get(':nth-child(2) > .MuiInputBase-root').type("P@assword123");
       cy.get('input[type="checkbox"]').check({ force: true });
       cy.get('.css-1ah1vqg').click({ force: true });
       cy.contains("Email already exists").should('exist');

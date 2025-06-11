@@ -6,6 +6,6 @@ describe('Daily Regression Test - 3.3 Navigate to Employer Landing Page', () => 
     it('Check For Employers Button on homepage', () => {
         cy.get('#for-employers-button').click();
         cy.wait(5000);
-        cy.get('.css-mwp1sm').should('exist');
+        cy.get('.css-1sk4kp7').should('exist');
     });
 });
